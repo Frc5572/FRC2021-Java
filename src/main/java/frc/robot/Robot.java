@@ -4,14 +4,18 @@
 
 package frc.robot;
 
+import static java.lang.Math.abs;
+
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import com.ctre.phoenix.motorcontrol.can.*;
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -24,6 +28,23 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  final int LEFT_Z = 2;
+  final int LEFT_X = 0;
+  final int LEFT_Y = 1;
+  final int RIGHT_Z = 3;
+  final int RIGHT_X = 4;
+  final int RIGHT_Y = 5;
+  final int LEFT_TRIGGER = 5;
+  final int RIGHT_TRIGGER = 6;
+  final int X_BUTTON = 3;
+  final int Y_BUTTON = 4;
+  final int B_BUTTON = 2;
+  final int A_BUTTON = 1;
+  final int START_BUTTON = 8;
+  final int BACK_BUTTON = 7;
+  final int LEFT_STICK_BUTTON = 9;
+  final int RIGHT_STICK_BUTTON = 10;
+
 
   //initialize timer
   Timer timer = new Timer();
@@ -37,6 +58,10 @@ public class Robot extends TimedRobot {
   TalonSRX m_frontRightAngle = new TalonSRX(5);
   TalonSRX m_backLeftAngle = new TalonSRX(6);
   TalonSRX m_backRightAngle = new TalonSRX(7);
+
+  // controllers
+  Joystick driver = new Joystick(0);
+  Joystick operator = new Joystick(1);
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -65,6 +90,9 @@ public class Robot extends TimedRobot {
     m_backLeftAngle.setNeutralMode(NeutralMode.Brake);
     m_backRightAngle.setNeutralMode(NeutralMode.Brake);
 
+
+    
+
     // frontLeftSpeed.set(ControlMode.Follower, 5);
 
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
@@ -80,18 +108,57 @@ public class Robot extends TimedRobot {
    * SmartDashboard integrated updating.
    */
   @Override
-  public void robotPeriodic() {}
+  public void robotPeriodic() {
+    if(abs(driver.getRawAxis(LEFT_X)) > 0.02){
+      System.out.println(driver.getRawAxis(LEFT_X));
+    }
+    if(abs(driver.getRawAxis(LEFT_Y)) > 0.02){
+      System.out.println(driver.getRawAxis(LEFT_Y));
+    }
+    if(abs(driver.getRawAxis(LEFT_Y)) > 0.02){
+      System.out.println(driver.getRawAxis(LEFT_Y));
+    }
+    if(abs(driver.getRawAxis(RIGHT_X)) > 0.02){
+      System.out.println(driver.getRawAxis(RIGHT_X));
+    }
+    if(abs(driver.getRawAxis(RIGHT_Y)) > 0.02){
+      System.out.println(driver.getRawAxis(RIGHT_Y));
+    }
+    if(abs(driver.getRawAxis(RIGHT_Z)) > 0.02){
+      System.out.println(driver.getRawAxis(RIGHT_Z));
+    }
+    if(abs(driver.getRawAxis(LEFT_Z)) > 0.02){
+      System.out.println(driver.getRawAxis(LEFT_Z));
+    }
+    if(driver.getRawButton(RIGHT_TRIGGER)){
+      System.out.println("RB");
+    }
+    if(driver.getRawButton(X_BUTTON)){
+      System.out.println("X");
+    }
+    if(driver.getRawButton(Y_BUTTON)){
+      System.out.println("Y");
+    }
+    if(driver.getRawButton(A_BUTTON)){
+      System.out.println("A");
+    }
+    if(driver.getRawButton(B_BUTTON)){
+      System.out.println("B");
+    }
+    if(driver.getRawButton(START_BUTTON)){
+      System.out.println("START");
+    }
+    if(driver.getRawButton(BACK_BUTTON)){
+      System.out.println("BACK");
+    }
+    if(driver.getRawButton(LEFT_STICK_BUTTON)){
+      System.out.println("LSTICK");
+    }
+    if(driver.getRawButton(RIGHT_STICK_BUTTON)){
+      System.out.println("RSTICK");
+    }
+  }
 
-  /**
-   * This autonomous (along with the chooser code above) shows how to select between different
-   * autonomous modes using the dashboard. The sendable chooser code works with the Java
-   * SmartDashboard. If you prefer the LabVIEW Dashboard, remove all of the chooser code and
-   * uncomment the getString line to get the auto name from the text box below the Gyro
-   *
-   * <p>You can add additional auto modes by adding additional comparisons to the switch structure
-   * below with additional strings. If using the SendableChooser make sure to add them to the
-   * chooser code above as well.
-   */
   @Override
   public void autonomousInit() {
 
