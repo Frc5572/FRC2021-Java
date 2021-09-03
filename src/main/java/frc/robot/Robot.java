@@ -188,6 +188,67 @@ public class Robot extends TimedRobot {
     if(driver.getPOV() == POVRight){
       System.out.println("POVRight");
     }
+    // operator buttons
+    if(abs(operator.getRawAxis(LEFT_X)) > 0.04){
+      System.out.println("LEFT_X");
+    }
+    if(abs(operator.getRawAxis(LEFT_Y)) > 0.04){
+      System.out.println("LEFT_Y");
+    }
+    if(abs(operator.getRawAxis(LEFT_Z)) > 0.04){
+      System.out.println("LEFT_Z");
+    }
+    if(abs(operator.getRawAxis(RIGHT_X)) > 0.04){
+      System.out.println("RIGHT_X");
+    }
+    if(abs(operator.getRawAxis(RIGHT_Y)) > 0.04){
+      System.out.println("RIGHT_Y");
+    }
+    if(abs(operator.getRawAxis(RIGHT_Z)) > 0.04){
+      System.out.println("RIGHT_Z");
+    }
+    if(operator.getRawButton(RIGHT_BUMPER)){
+      System.out.println("RB");
+    }
+    if(operator.getRawButton(LEFT_BUMPER)){
+      System.out.println("LB");
+    }
+    if(operator.getRawButton(X_BUTTON)){
+      System.out.println("X");
+    }
+    if(operator.getRawButton(Y_BUTTON)){
+      System.out.println("Y");
+    }
+    if(operator.getRawButton(A_BUTTON)){
+      System.out.println("A");
+    }
+    if(operator.getRawButton(B_BUTTON)){
+      System.out.println("B");
+    }
+    if(operator.getRawButton(START_BUTTON)){
+      System.out.println("START");
+    }
+    if(operator.getRawButton(BACK_BUTTON)){
+      System.out.println("BACK");
+    }
+    if(operator.getRawButton(LEFT_STICK_BUTTON)){
+      System.out.println("LSTICK");
+    }
+    if(operator.getRawButton(RIGHT_STICK_BUTTON)){
+      System.out.println("RSTICK");
+    }
+    if(operator.getPOV() == POVDown){
+      System.out.println("POVDown");
+    }
+    if(operator.getPOV() == POVUp){
+      System.out.println("POVUp");
+    }
+    if(operator.getPOV() == POVLeft){
+      System.out.println("POVLeft");
+    }
+    if(operator.getPOV() == POVRight){
+      System.out.println("POVRight");
+    }
   }
 
   @Override
