@@ -34,8 +34,8 @@ public class Robot extends TimedRobot {
   final int RIGHT_Z = 3;
   final int RIGHT_X = 4;
   final int RIGHT_Y = 5;
-  final int LEFT_TRIGGER = 5;
-  final int RIGHT_TRIGGER = 6;
+  final int LEFT_BUMPER = 5;
+  final int RIGHT_BUMPER = 6;
   final int X_BUTTON = 3;
   final int Y_BUTTON = 4;
   final int B_BUTTON = 2;
@@ -44,6 +44,10 @@ public class Robot extends TimedRobot {
   final int BACK_BUTTON = 7;
   final int LEFT_STICK_BUTTON = 9;
   final int RIGHT_STICK_BUTTON = 10;
+  final int POVDown = 180;
+  final int POVUp = 0;
+  final int POVLeft = 270;
+  final int POVRight = 90;
 
 
   //initialize timer
@@ -103,29 +107,50 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    if(abs(driver.getRawAxis(LEFT_X)) > 0.02){
-      System.out.println(driver.getRawAxis(LEFT_X));
+    // if(abs(driver.getRawAxis(LEFT_X)) > 0.04){
+    //   System.out.println(driver.getRawAxis(LEFT_X));
+    // }
+    // if(abs(driver.getRawAxis(LEFT_Y)) > 0.04){
+    //   System.out.println(driver.getRawAxis(LEFT_Y));
+    // }
+    // if(abs(driver.getRawAxis(LEFT_Y)) > 0.04){
+    //   System.out.println(driver.getRawAxis(LEFT_Y));
+    // }
+    // if(abs(driver.getRawAxis(RIGHT_X)) > 0.04){
+    //   System.out.println(driver.getRawAxis(RIGHT_X));
+    // }
+    // if(abs(driver.getRawAxis(RIGHT_Y)) > 0.04){
+    //   System.out.println(driver.getRawAxis(RIGHT_Y));
+    // }
+    // if(abs(driver.getRawAxis(RIGHT_Z)) > 0.04){
+    //   System.out.println(driver.getRawAxis(RIGHT_Z));
+    // }
+    // if(abs(driver.getRawAxis(LEFT_Z)) > 0.04){
+    //   System.out.println(driver.getRawAxis(LEFT_Z));
+    // }
+    if(abs(driver.getRawAxis(LEFT_X)) > 0.04){
+      System.out.println("LEFT_X");
     }
-    if(abs(driver.getRawAxis(LEFT_Y)) > 0.02){
-      System.out.println(driver.getRawAxis(LEFT_Y));
+    if(abs(driver.getRawAxis(LEFT_Y)) > 0.04){
+      System.out.println("LEFT_Y");
     }
-    if(abs(driver.getRawAxis(LEFT_Y)) > 0.02){
-      System.out.println(driver.getRawAxis(LEFT_Y));
+    if(abs(driver.getRawAxis(LEFT_Z)) > 0.04){
+      System.out.println("LEFT_Z");
     }
-    if(abs(driver.getRawAxis(RIGHT_X)) > 0.02){
-      System.out.println(driver.getRawAxis(RIGHT_X));
+    if(abs(driver.getRawAxis(RIGHT_X)) > 0.04){
+      System.out.println("RIGHT_X");
     }
-    if(abs(driver.getRawAxis(RIGHT_Y)) > 0.02){
-      System.out.println(driver.getRawAxis(RIGHT_Y));
+    if(abs(driver.getRawAxis(RIGHT_Y)) > 0.04){
+      System.out.println("RIGHT_Y");
     }
-    if(abs(driver.getRawAxis(RIGHT_Z)) > 0.02){
-      System.out.println(driver.getRawAxis(RIGHT_Z));
+    if(abs(driver.getRawAxis(RIGHT_Z)) > 0.04){
+      System.out.println("RIGHT_Z");
     }
-    if(abs(driver.getRawAxis(LEFT_Z)) > 0.02){
-      System.out.println(driver.getRawAxis(LEFT_Z));
-    }
-    if(driver.getRawButton(RIGHT_TRIGGER)){
+    if(driver.getRawButton(RIGHT_BUMPER)){
       System.out.println("RB");
+    }
+    if(driver.getRawButton(LEFT_BUMPER)){
+      System.out.println("LB");
     }
     if(driver.getRawButton(X_BUTTON)){
       System.out.println("X");
@@ -150,6 +175,18 @@ public class Robot extends TimedRobot {
     }
     if(driver.getRawButton(RIGHT_STICK_BUTTON)){
       System.out.println("RSTICK");
+    }
+    if(driver.getPOV() == POVDown){
+      System.out.println("POVDown");
+    }
+    if(driver.getPOV() == POVUp){
+      System.out.println("POVUp");
+    }
+    if(driver.getPOV() == POVLeft){
+      System.out.println("POVLeft");
+    }
+    if(driver.getPOV() == POVRight){
+      System.out.println("POVRight");
     }
   }
 
