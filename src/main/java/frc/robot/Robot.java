@@ -50,14 +50,12 @@ public class Robot extends TimedRobot {
   Timer timer = new Timer();
 
   // initialize motor names and ID
-  TalonSRX m_frontLeftSpeed = new TalonSRX(0);
-  TalonSRX m_frontRightSpeed = new TalonSRX(1);
-  TalonSRX m_backLeftSpeed = new TalonSRX(2);
-  TalonSRX m_backRightSpeed = new TalonSRX(3);
-  TalonSRX m_frontLeftAngle = new TalonSRX(4);
-  TalonSRX m_frontRightAngle = new TalonSRX(5);
-  TalonSRX m_backLeftAngle = new TalonSRX(6);
-  TalonSRX m_backRightAngle = new TalonSRX(7);
+  TalonSRX m_frontLeft = new TalonSRX(4);
+  TalonSRX m_frontRight = new TalonSRX(2);
+  TalonSRX m_middleLeft = new TalonSRX(6);
+  TalonSRX m_middleRight = new TalonSRX(3);
+  TalonSRX m_backLeft = new TalonSRX(8);
+  TalonSRX m_backRight = new TalonSRX(7);
 
   // controllers
   Joystick driver = new Joystick(0);
@@ -71,24 +69,20 @@ public class Robot extends TimedRobot {
   public void robotInit() {
 
     // set motors to 0 at beginning
-    m_frontLeftSpeed.set(ControlMode.PercentOutput, 0);
-    m_frontRightSpeed.set(ControlMode.PercentOutput, 0);
-    m_backLeftSpeed.set(ControlMode.PercentOutput, 0);
-    m_backRightSpeed.set(ControlMode.PercentOutput, 0);
-    m_frontLeftAngle.set(ControlMode.PercentOutput, 0);
-    m_frontRightAngle.set(ControlMode.PercentOutput, 0);
-    m_backLeftAngle.set(ControlMode.PercentOutput, 0);
-    m_backRightAngle.set(ControlMode.PercentOutput, 0);
+    m_frontLeft.set(ControlMode.PercentOutput, 0);
+    m_frontRight.set(ControlMode.PercentOutput, 0);
+    m_middleLeft.set(ControlMode.PercentOutput, 0);
+    m_middleRight.set(ControlMode.PercentOutput, 0);
+    m_backLeft.set(ControlMode.PercentOutput, 0);
+    m_backRight.set(ControlMode.PercentOutput, 0);
 
     // set neutral mode
-    m_frontLeftSpeed.setNeutralMode(NeutralMode.Coast);
-    m_frontRightSpeed.setNeutralMode(NeutralMode.Coast);
-    m_backLeftSpeed.setNeutralMode(NeutralMode.Coast);
-    m_backRightSpeed.setNeutralMode(NeutralMode.Coast);
-    m_frontLeftAngle.setNeutralMode(NeutralMode.Brake);
-    m_frontRightAngle.setNeutralMode(NeutralMode.Brake);
-    m_backLeftAngle.setNeutralMode(NeutralMode.Brake);
-    m_backRightAngle.setNeutralMode(NeutralMode.Brake);
+    m_frontLeft.setNeutralMode(NeutralMode.Brake);
+    m_frontRight.setNeutralMode(NeutralMode.Brake);
+    m_middleLeft.setNeutralMode(NeutralMode.Brake);
+    m_middleRight.setNeutralMode(NeutralMode.Brake);
+    m_backLeft.setNeutralMode(NeutralMode.Brake);
+    m_backRight.setNeutralMode(NeutralMode.Brake);
 
 
     
