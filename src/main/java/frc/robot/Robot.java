@@ -4,14 +4,18 @@
 
 package frc.robot;
 
+import static java.lang.Math.abs;
+
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import com.ctre.phoenix.motorcontrol.can.*;
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -24,19 +28,42 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  final int LEFT_Z = 2;
+  final int LEFT_X = 0;
+  final int LEFT_Y = 1;
+  final int RIGHT_Z = 3;
+  final int RIGHT_X = 4;
+  final int RIGHT_Y = 5;
+  final int LEFT_BUMPER = 5;
+  final int RIGHT_BUMPER = 6;
+  final int X_BUTTON = 3;
+  final int Y_BUTTON = 4;
+  final int B_BUTTON = 2;
+  final int A_BUTTON = 1;
+  final int START_BUTTON = 8;
+  final int BACK_BUTTON = 7;
+  final int LEFT_STICK_BUTTON = 9;
+  final int RIGHT_STICK_BUTTON = 10;
+  final int POVDown = 180;
+  final int POVUp = 0;
+  final int POVLeft = 270;
+  final int POVRight = 90;
+
 
   //initialize timer
   Timer timer = new Timer();
 
   // initialize motor names and ID
-  TalonSRX m_frontLeftSpeed = new TalonSRX(0);
-  TalonSRX m_frontRightSpeed = new TalonSRX(1);
-  TalonSRX m_backLeftSpeed = new TalonSRX(2);
-  TalonSRX m_backRightSpeed = new TalonSRX(3);
-  TalonSRX m_frontLeftAngle = new TalonSRX(4);
-  TalonSRX m_frontRightAngle = new TalonSRX(5);
-  TalonSRX m_backLeftAngle = new TalonSRX(6);
-  TalonSRX m_backRightAngle = new TalonSRX(7);
+  TalonSRX m_frontLeft = new TalonSRX(4);
+  TalonSRX m_frontRight = new TalonSRX(2);
+  TalonSRX m_middleLeft = new TalonSRX(6);
+  TalonSRX m_middleRight = new TalonSRX(3);
+  TalonSRX m_backLeft = new TalonSRX(8);
+  TalonSRX m_backRight = new TalonSRX(7);
+
+  // controllers
+  Joystick driver = new Joystick(0);
+  Joystick operator = new Joystick(1);
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -46,24 +73,23 @@ public class Robot extends TimedRobot {
   public void robotInit() {
 
     // set motors to 0 at beginning
-    m_frontLeftSpeed.set(ControlMode.PercentOutput, 0);
-    m_frontRightSpeed.set(ControlMode.PercentOutput, 0);
-    m_backLeftSpeed.set(ControlMode.PercentOutput, 0);
-    m_backRightSpeed.set(ControlMode.PercentOutput, 0);
-    m_frontLeftAngle.set(ControlMode.PercentOutput, 0);
-    m_frontRightAngle.set(ControlMode.PercentOutput, 0);
-    m_backLeftAngle.set(ControlMode.PercentOutput, 0);
-    m_backRightAngle.set(ControlMode.PercentOutput, 0);
+    m_frontLeft.set(ControlMode.PercentOutput, 0);
+    m_frontRight.set(ControlMode.PercentOutput, 0);
+    m_middleLeft.set(ControlMode.PercentOutput, 0);
+    m_middleRight.set(ControlMode.PercentOutput, 0);
+    m_backLeft.set(ControlMode.PercentOutput, 0);
+    m_backRight.set(ControlMode.PercentOutput, 0);
 
     // set neutral mode
-    m_frontLeftSpeed.setNeutralMode(NeutralMode.Coast);
-    m_frontRightSpeed.setNeutralMode(NeutralMode.Coast);
-    m_backLeftSpeed.setNeutralMode(NeutralMode.Coast);
-    m_backRightSpeed.setNeutralMode(NeutralMode.Coast);
-    m_frontLeftAngle.setNeutralMode(NeutralMode.Brake);
-    m_frontRightAngle.setNeutralMode(NeutralMode.Brake);
-    m_backLeftAngle.setNeutralMode(NeutralMode.Brake);
-    m_backRightAngle.setNeutralMode(NeutralMode.Brake);
+    m_frontLeft.setNeutralMode(NeutralMode.Brake);
+    m_frontRight.setNeutralMode(NeutralMode.Brake);
+    m_middleLeft.setNeutralMode(NeutralMode.Brake);
+    m_middleRight.setNeutralMode(NeutralMode.Brake);
+    m_backLeft.setNeutralMode(NeutralMode.Brake);
+    m_backRight.setNeutralMode(NeutralMode.Brake);
+
+
+    
 
     // frontLeftSpeed.set(ControlMode.Follower, 5);
 
@@ -80,18 +106,151 @@ public class Robot extends TimedRobot {
    * SmartDashboard integrated updating.
    */
   @Override
-  public void robotPeriodic() {}
+  public void robotPeriodic() {
+    // if(abs(driver.getRawAxis(LEFT_X)) > 0.04){
+    //   System.out.println(driver.getRawAxis(LEFT_X));
+    // }
+    // if(abs(driver.getRawAxis(LEFT_Y)) > 0.04){
+    //   System.out.println(driver.getRawAxis(LEFT_Y));
+    // }
+    // if(abs(driver.getRawAxis(LEFT_Y)) > 0.04){
+    //   System.out.println(driver.getRawAxis(LEFT_Y));
+    // }
+    // if(abs(driver.getRawAxis(RIGHT_X)) > 0.04){
+    //   System.out.println(driver.getRawAxis(RIGHT_X));
+    // }
+    // if(abs(driver.getRawAxis(RIGHT_Y)) > 0.04){
+    //   System.out.println(driver.getRawAxis(RIGHT_Y));
+    // }
+    // if(abs(driver.getRawAxis(RIGHT_Z)) > 0.04){
+    //   System.out.println(driver.getRawAxis(RIGHT_Z));
+    // }
+    // if(abs(driver.getRawAxis(LEFT_Z)) > 0.04){
+    //   System.out.println(driver.getRawAxis(LEFT_Z));
+    // }
+    if(abs(driver.getRawAxis(LEFT_X)) > 0.04){
+      System.out.println("LEFT_X");
+    }
+    if(abs(driver.getRawAxis(LEFT_Y)) > 0.04){
+      System.out.println("LEFT_Y");
+    }
+    if(abs(driver.getRawAxis(LEFT_Z)) > 0.04){
+      System.out.println("LEFT_Z");
+    }
+    if(abs(driver.getRawAxis(RIGHT_X)) > 0.04){
+      System.out.println("RIGHT_X");
+    }
+    if(abs(driver.getRawAxis(RIGHT_Y)) > 0.04){
+      System.out.println("RIGHT_Y");
+    }
+    if(abs(driver.getRawAxis(RIGHT_Z)) > 0.04){
+      System.out.println("RIGHT_Z");
+    }
+    if(driver.getRawButton(RIGHT_BUMPER)){
+      System.out.println("RB");
+    }
+    if(driver.getRawButton(LEFT_BUMPER)){
+      System.out.println("LB");
+    }
+    if(driver.getRawButton(X_BUTTON)){
+      System.out.println("X");
+    }
+    if(driver.getRawButton(Y_BUTTON)){
+      System.out.println("Y");
+    }
+    if(driver.getRawButton(A_BUTTON)){
+      System.out.println("A");
+    }
+    if(driver.getRawButton(B_BUTTON)){
+      System.out.println("B");
+    }
+    if(driver.getRawButton(START_BUTTON)){
+      System.out.println("START");
+    }
+    if(driver.getRawButton(BACK_BUTTON)){
+      System.out.println("BACK");
+    }
+    if(driver.getRawButton(LEFT_STICK_BUTTON)){
+      System.out.println("LSTICK");
+    }
+    if(driver.getRawButton(RIGHT_STICK_BUTTON)){
+      System.out.println("RSTICK");
+    }
+    if(driver.getPOV() == POVDown){
+      System.out.println("POVDown");
+    }
+    if(driver.getPOV() == POVUp){
+      System.out.println("POVUp");
+    }
+    if(driver.getPOV() == POVLeft){
+      System.out.println("POVLeft");
+    }
+    if(driver.getPOV() == POVRight){
+      System.out.println("POVRight");
+    }
+    // operator buttons
+    if(abs(operator.getRawAxis(LEFT_X)) > 0.04){
+      System.out.println("LEFT_X");
+    }
+    if(abs(operator.getRawAxis(LEFT_Y)) > 0.04){
+      System.out.println("LEFT_Y");
+    }
+    if(abs(operator.getRawAxis(LEFT_Z)) > 0.04){
+      System.out.println("LEFT_Z");
+    }
+    if(abs(operator.getRawAxis(RIGHT_X)) > 0.04){
+      System.out.println("RIGHT_X");
+    }
+    if(abs(operator.getRawAxis(RIGHT_Y)) > 0.04){
+      System.out.println("RIGHT_Y");
+    }
+    if(abs(operator.getRawAxis(RIGHT_Z)) > 0.04){
+      System.out.println("RIGHT_Z");
+    }
+    if(operator.getRawButton(RIGHT_BUMPER)){
+      System.out.println("RB");
+    }
+    if(operator.getRawButton(LEFT_BUMPER)){
+      System.out.println("LB");
+    }
+    if(operator.getRawButton(X_BUTTON)){
+      System.out.println("X");
+    }
+    if(operator.getRawButton(Y_BUTTON)){
+      System.out.println("Y");
+    }
+    if(operator.getRawButton(A_BUTTON)){
+      System.out.println("A");
+    }
+    if(operator.getRawButton(B_BUTTON)){
+      System.out.println("B");
+    }
+    if(operator.getRawButton(START_BUTTON)){
+      System.out.println("START");
+    }
+    if(operator.getRawButton(BACK_BUTTON)){
+      System.out.println("BACK");
+    }
+    if(operator.getRawButton(LEFT_STICK_BUTTON)){
+      System.out.println("LSTICK");
+    }
+    if(operator.getRawButton(RIGHT_STICK_BUTTON)){
+      System.out.println("RSTICK");
+    }
+    if(operator.getPOV() == POVDown){
+      System.out.println("POVDown");
+    }
+    if(operator.getPOV() == POVUp){
+      System.out.println("POVUp");
+    }
+    if(operator.getPOV() == POVLeft){
+      System.out.println("POVLeft");
+    }
+    if(operator.getPOV() == POVRight){
+      System.out.println("POVRight");
+    }
+  }
 
-  /**
-   * This autonomous (along with the chooser code above) shows how to select between different
-   * autonomous modes using the dashboard. The sendable chooser code works with the Java
-   * SmartDashboard. If you prefer the LabVIEW Dashboard, remove all of the chooser code and
-   * uncomment the getString line to get the auto name from the text box below the Gyro
-   *
-   * <p>You can add additional auto modes by adding additional comparisons to the switch structure
-   * below with additional strings. If using the SendableChooser make sure to add them to the
-   * chooser code above as well.
-   */
   @Override
   public void autonomousInit() {
 
