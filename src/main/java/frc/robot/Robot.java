@@ -283,7 +283,18 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    if(driver.getRawAxis(LEFT_Y) > 0){
+      m_frontLeft.set(ControlMode.PercentOutput, (driver.getRawAxis(LEFT_Y)));
+      m_middleLeft.set(ControlMode.PercentOutput, (driver.getRawAxis(LEFT_Y)));
+      m_backLeft.set(ControlMode.PercentOutput, (driver.getRawAxis(LEFT_Y)));
+    }
+    if(driver.getRawAxis(RIGHT_Y) > 0){
+      m_frontRight.set(ControlMode.PercentOutput, (driver.getRawAxis(RIGHT_Y)));
+      m_middleRight.set(ControlMode.PercentOutput, (driver.getRawAxis(RIGHT_Y)));
+      m_backRight.set(ControlMode.PercentOutput, (driver.getRawAxis(RIGHT_Y)));
+    }
+  }
 
   /** This function is called once when the robot is disabled. */
   @Override
