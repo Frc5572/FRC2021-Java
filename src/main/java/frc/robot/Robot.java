@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Compressor;
 
 
 /**
@@ -48,10 +49,13 @@ public class Robot extends TimedRobot {
   final int POVUp = 0;
   final int POVLeft = 270;
   final int POVRight = 90;
+  int PCM1 = 0;
 
 
   //initialize timer
   Timer timer = new Timer();
+
+  Compressor compressor;
 
   // initialize motor names and ID
   TalonSRX m_frontLeft = new TalonSRX(4);
@@ -89,7 +93,8 @@ public class Robot extends TimedRobot {
     m_backRight.setNeutralMode(NeutralMode.Brake);
 
 
-    
+    compressor.setClosedLoopControl(true);
+    compressor.start();
 
     // frontLeftSpeed.set(ControlMode.Follower, 5);
 
