@@ -11,6 +11,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -54,7 +55,7 @@ public class Robot extends TimedRobot {
   Timer timer = new Timer();
 
   // initialize servo
-  servo = new Servo{0};
+  Servo servo = new Servo(0);
 
 
   // initialize motor names and ID
