@@ -10,6 +10,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
@@ -28,6 +29,8 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  
+  // create constants
   final int LEFT_Z = 2;
   final int LEFT_X = 0;
   final int LEFT_Y = 1;
@@ -50,8 +53,15 @@ public class Robot extends TimedRobot {
   final int POVRight = 90;
 
 
-  //initialize timer
+  // initialize timer
   Timer timer = new Timer();
+
+  // initialize solenoids
+  DoubleSolenoid climber2 = new DoubleSolenoid(7 ,0);
+  DoubleSolenoid sol4 = new DoubleSolenoid(5, 2);
+  DoubleSolenoid intakeSol = new DoubleSolenoid (6, 1);
+  DoubleSolenoid climber1 = new DoubleSolenoid (4, 3);
+  DoubleSolenoid hopperSol = new DoubleSolenoid (5, 2);
 
   // initialize motor names and ID
   TalonSRX m_frontLeft = new TalonSRX(4);
@@ -89,10 +99,6 @@ public class Robot extends TimedRobot {
     m_backRight.setNeutralMode(NeutralMode.Brake);
 
 
-    
-
-    // frontLeftSpeed.set(ControlMode.Follower, 5);
-
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
@@ -128,6 +134,8 @@ public class Robot extends TimedRobot {
     // if(abs(driver.getRawAxis(LEFT_Z)) > 0.04){
     //   System.out.println(driver.getRawAxis(LEFT_Z));
     // }
+
+    // driver buttons
     if(abs(driver.getRawAxis(LEFT_X)) > 0.04){
       System.out.println("LEFT_X");
     }
@@ -188,6 +196,7 @@ public class Robot extends TimedRobot {
     if(driver.getPOV() == POVRight){
       System.out.println("POVRight");
     }
+
     // operator buttons
     if(abs(operator.getRawAxis(LEFT_X)) > 0.04){
       System.out.println("LEFT_X");
