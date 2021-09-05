@@ -55,7 +55,8 @@ public class Robot extends TimedRobot {
   Timer timer = new Timer();
 
   // initialize servo
-  Servo servo = new Servo(0);
+  Servo leftServo = new Servo(0);
+  Servo rightServo = new Servo(1);
 
 
   // initialize motor names and ID
@@ -288,7 +289,12 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    if(driver.getRawButton(X_BUTTON){
+      leftServo.set(.5);
+      rightServo.set(.5);
+    }
+  }
 
   /** This function is called once when the robot is disabled. */
   @Override
