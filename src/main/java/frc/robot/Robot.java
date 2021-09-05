@@ -10,8 +10,8 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
+import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -54,11 +54,6 @@ public class Robot extends TimedRobot {
   //initialize timer
   Timer timer = new Timer();
 
-  // initialize servo
-  Servo leftServo = new Servo(0);
-  Servo rightServo = new Servo(1);
-
-
   // initialize motor names and ID
   TalonSRX m_frontLeft = new TalonSRX(4);
   TalonSRX m_frontRight = new TalonSRX(2);
@@ -70,6 +65,10 @@ public class Robot extends TimedRobot {
   // controllers
   Joystick driver = new Joystick(0);
   Joystick operator = new Joystick(1);
+
+  // initialize usb camera
+  // UsbCamera camera1 = new UsbCamera(camera1);
+  // camera1 = UsbCamera.startAutomaticCapture();
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -94,6 +93,7 @@ public class Robot extends TimedRobot {
     m_backLeft.setNeutralMode(NeutralMode.Brake);
     m_backRight.setNeutralMode(NeutralMode.Brake);
 
+    // send usb camera feed to dashboard
 
     
 
@@ -290,10 +290,6 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    if(driver.getRawButton(X_BUTTON){
-      leftServo.set(.5);
-      rightServo.set(.5);
-    }
   }
 
   /** This function is called once when the robot is disabled. */
