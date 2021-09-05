@@ -53,6 +53,10 @@ public class Robot extends TimedRobot {
   //initialize timer
   Timer timer = new Timer();
 
+  // initialize servo
+  servo = new Servo{0};
+
+
   // initialize motor names and ID
   TalonSRX m_frontLeft = new TalonSRX(4);
   TalonSRX m_frontRight = new TalonSRX(2);
