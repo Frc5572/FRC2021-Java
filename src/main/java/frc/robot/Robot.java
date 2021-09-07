@@ -295,9 +295,12 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     if(driver.getRawButton(B_BUTTON)){
-      intakeSol.set(Value.kForward);
+      hopperSol.set(Value.kForward);
       // ?
       sol4.set(Value.kForward);
+    }
+    if(!driver.getRawButton(B_BUTTON)){
+      hopperSol.set(Value.kReverse);
     }
   }
 
