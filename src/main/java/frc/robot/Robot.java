@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Compressor;
 
 
 /**
@@ -52,17 +53,13 @@ public class Robot extends TimedRobot {
   final int POVUp = 0;
   final int POVLeft = 270;
   final int POVRight = 90;
+  int PCM1 = 0;
 
 
   // initialize timer
   Timer timer = new Timer();
 
-  // initialize solenoids
-  DoubleSolenoid climber2 = new DoubleSolenoid(7 ,0);
-  DoubleSolenoid sol4 = new DoubleSolenoid(5, 2);
-  DoubleSolenoid intakeSol = new DoubleSolenoid (6, 1);
-  DoubleSolenoid climber1 = new DoubleSolenoid (4, 3);
-  DoubleSolenoid hopperSol = new DoubleSolenoid (5, 2);
+  Compressor compressor = new Compressor();
 
   // initialize motor names and ID
   TalonSRX m_frontLeft = new TalonSRX(4);
@@ -99,6 +96,11 @@ public class Robot extends TimedRobot {
     m_backLeft.setNeutralMode(NeutralMode.Brake);
     m_backRight.setNeutralMode(NeutralMode.Brake);
 
+
+    compressor.setClosedLoopControl(true);
+    compressor.start();
+
+    // frontLeftSpeed.set(ControlMode.Follower, 5);
 
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
