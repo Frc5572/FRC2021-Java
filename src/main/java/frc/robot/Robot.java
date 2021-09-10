@@ -55,7 +55,7 @@ public class Robot extends TimedRobot {
   //initialize timer
   Timer timer = new Timer();
 
-  Compressor compressor;
+  Compressor compressor = new Compressor();
 
   // initialize motor names and ID
   TalonSRX m_frontLeft = new TalonSRX(4);
