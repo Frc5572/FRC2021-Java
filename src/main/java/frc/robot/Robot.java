@@ -4,11 +4,11 @@
 
 package frc.robot;
 
-import static java.lang.Math.abs;
+// import static java.lang.Math.abs;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
 
 
 /**
@@ -68,12 +69,18 @@ public class Robot extends TimedRobot {
   DoubleSolenoid hopperSol = new DoubleSolenoid(PCM1, 5, 2);
 
   // initialize motor names and ID
-  TalonSRX m_frontLeft = new TalonSRX(4);
-  TalonSRX m_frontRight = new TalonSRX(2);
-  TalonSRX m_middleLeft = new TalonSRX(6);
-  TalonSRX m_middleRight = new TalonSRX(3);
-  TalonSRX m_backLeft = new TalonSRX(8);
-  TalonSRX m_backRight = new TalonSRX(7);
+  WPI_TalonSRX m_frontLeft = new WPI_TalonSRX(4);
+  WPI_TalonSRX m_frontRight = new WPI_TalonSRX(2);
+  WPI_TalonSRX m_middleLeft = new WPI_TalonSRX(6);
+  WPI_TalonSRX m_middleRight = new WPI_TalonSRX(3);
+  WPI_TalonSRX m_backLeft = new WPI_TalonSRX(8);
+  WPI_TalonSRX m_backRight = new WPI_TalonSRX(7);
+
+  WPI_TalonSRX m_hopperLeft = new WPI_TalonSRX(9);
+  WPI_TalonSRX m_hopperRight = new WPI_TalonSRX(10);
+  SpeedControllerGroup hopperMotors = new SpeedControllerGroup(m_hopperLeft, m_hopperRight);
+
+  
 
   // controllers
   Joystick driver = new Joystick(0);
@@ -112,6 +119,7 @@ public class Robot extends TimedRobot {
     climberSol1.set(Value.kReverse);
     climberSol2.set(Value.kReverse);
 
+    m_hopperRight.setInverted(true);
     // frontLeftSpeed.set(ControlMode.Follower, 5);
 
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
@@ -172,9 +180,9 @@ public class Robot extends TimedRobot {
     // if(driver.getRawButton(RIGHT_BUMPER)){
     //   System.out.println("RB");
     // }
-    // if(driver.getRawButton(LEFT_BUMPER)){
-    //   System.out.println("LB");
-    // }
+    if(driver.getRawButton(LEFT_BUMPER)){
+      System.out.println("LB");
+    }
     // if(driver.getRawButton(X_BUTTON)){
     //   System.out.println("X");
     // }
@@ -308,16 +316,24 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    if(driver.getRawAxis(LEFT_Y) > 0){
-      m_frontLeft.set(ControlMode.PercentOutput, (driver.getRawAxis(LEFT_Y)));
-      m_middleLeft.set(ControlMode.PercentOutput, (driver.getRawAxis(LEFT_Y)));
-      m_backLeft.set(ControlMode.PercentOutput, (driver.getRawAxis(LEFT_Y)));
+    // if(driver.getRawAxis(LEFT_Y) > 0){
+    //   m_frontLeft.set(ControlMode.PercentOutput, (driver.getRawAxis(LEFT_Y)));
+    //   m_middleLeft.set(ControlMode.PercentOutput, (driver.getRawAxis(LEFT_Y)));
+    //   m_backLeft.set(ControlMode.PercentOutput, (driver.getRawAxis(LEFT_Y)));
+    // }
+    // if(driver.getRawAxis(RIGHT_Y) > 0){
+    //   m_frontRight.set(ControlMode.PercentOutput, (driver.getRawAxis(RIGHT_Y)));
+    //   m_middleRight.set(ControlMode.PercentOutput, (driver.getRawAxis(RIGHT_Y)));
+    //   m_backRight.set(ControlMode.PercentOutput, (driver.getRawAxis(RIGHT_Y)));
+    // }    
+
+    if(driver.getRawButton(LEFT_BUMPER)){
+      hopperMotors.set(0.4);
+    } else {
+      hopperMotors.set(0);
     }
-    if(driver.getRawAxis(RIGHT_Y) > 0){
-      m_frontRight.set(ControlMode.PercentOutput, (driver.getRawAxis(RIGHT_Y)));
-      m_middleRight.set(ControlMode.PercentOutput, (driver.getRawAxis(RIGHT_Y)));
-      m_backRight.set(ControlMode.PercentOutput, (driver.getRawAxis(RIGHT_Y)));
-    }    // intake on B
+
+    // intake on B
     if(driver.getRawButton(B_BUTTON)){
       intakeSol.set(Value.kReverse);
     }
