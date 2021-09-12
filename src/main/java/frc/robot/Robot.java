@@ -8,7 +8,7 @@ import static java.lang.Math.abs;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -54,12 +54,17 @@ public class Robot extends TimedRobot {
   Timer timer = new Timer();
 
   // initialize motor names and ID
-  TalonSRX m_frontLeft = new TalonSRX(4);
-  TalonSRX m_frontRight = new TalonSRX(2);
-  TalonSRX m_middleLeft = new TalonSRX(6);
-  TalonSRX m_middleRight = new TalonSRX(3);
-  TalonSRX m_backLeft = new TalonSRX(8);
-  TalonSRX m_backRight = new TalonSRX(7);
+  WPI_TalonSRX m_frontLeft = new WPI_TalonSRX(4);
+  WPI_TalonSRX m_frontRight = new WPI_TalonSRX(2);
+  WPI_TalonSRX m_middleLeft = new WPI_TalonSRX(6);
+  WPI_TalonSRX m_middleRight = new WPI_TalonSRX(3);
+  WPI_TalonSRX m_backLeft = new WPI_TalonSRX(8);
+  WPI_TalonSRX m_backRight = new WPI_TalonSRX(7);
+
+  WPI_TalonSRX m_shooterLeft = new WPI_TalonSRX(12);
+  WPI_TalonSRX m_shooterRight = new WPI_TalonSRX(14);
+
+  SpeedControllerGroup shooterMotors = new SpeedControllerGroup(m_shooterLeft, m_shooterRight);
 
   // controllers
   Joystick driver = new Joystick(0);
