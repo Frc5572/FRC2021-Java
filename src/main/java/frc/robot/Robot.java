@@ -50,6 +50,8 @@ public class Robot extends TimedRobot {
   final int POVUp = 0;
   final int POVLeft = 270;
   final int POVRight = 90;
+  // final int RIGHT_TRIGGER = 12;
+
 
   // public var for shooter PID
   double v1;
@@ -91,10 +93,10 @@ public class Robot extends TimedRobot {
   public void robotInit() {
 
     // smart dashboard put PID values
-    SmartDashboard.putNumber("P Gain", 0);
-    SmartDashboard.putNumber("I Gain", 0);
-    SmartDashboard.putNumber("D Gain", 0);
-    SmartDashboard.putNumber("SetPoint", 0);
+    // SmartDashboard.putNumber("P Gain", 0);
+    // SmartDashboard.putNumber("I Gain", 0);
+    // SmartDashboard.putNumber("D Gain", 0);
+    // SmartDashboard.putNumber("SetPoint", 0);
 
     // set motors to 0 at beginning
     m_frontLeft.set(ControlMode.PercentOutput, 0);
@@ -139,12 +141,12 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
 
-    double p = SmartDashboard.getNumber("P Gain", 0);
-    double i = SmartDashboard.getNumber("I Gain", 0);
-    double d = SmartDashboard.getNumber("D Gain", 0);
-    double rpm = SmartDashboard.getNumber("SetPoint", 0);
+    // double p = SmartDashboard.getNumber("P Gain", 0);
+    // double i = SmartDashboard.getNumber("I Gain", 0);
+    // double d = SmartDashboard.getNumber("D Gain", 0);
+    // double rpm = SmartDashboard.getNumber("SetPoint", 0);
 
-    pid.setPID(p, i, d);
+    // pid.setPID(p, i, d);
 
     double s1 = m_shooterLeft.getSelectedSensorVelocity();
     double s2 = m_shooterRight.getSelectedSensorVelocity();
@@ -153,11 +155,11 @@ public class Robot extends TimedRobot {
 
     SmartDashboard.putNumber("RPM", speed);
 
-    System.out.println("Speed 1: " + s1);
-    System.out.println("Speed 2: " + s2);
+    // System.out.println("Speed 1: " + s1);
+    // System.out.println("Speed 2: " + s2);
 
-    v1 = pid.calculate(s1, rpm);
-    v2 = pid.calculate(s2, rpm);
+    // v1 = pid.calculate(s1, rpm);
+    // v2 = pid.calculate(s2, rpm);
 
     // double ceiling = .5;
 
@@ -359,7 +361,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    if(driver.getRawButton(Y_BUTTON)){
+    if(driver.getRawAxis(RIGHT_Z) > .4){
       m_shooterLeft.set(ControlMode.PercentOutput, .7);
       m_shooterRight.set(ControlMode.PercentOutput, .7);
     } else {
