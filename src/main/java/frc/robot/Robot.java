@@ -11,6 +11,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
@@ -50,6 +51,10 @@ public class Robot extends TimedRobot {
   final int POVLeft = 270;
   final int POVRight = 90;
 
+  // public var for shooter PID
+  double v1;
+  double v2;
+
 
   //initialize timer
   Timer timer = new Timer();
@@ -67,6 +72,13 @@ public class Robot extends TimedRobot {
 
   SpeedControllerGroup shooterMotors = new SpeedControllerGroup(m_shooterLeft, m_shooterRight);
 
+  // PID object
+  PIDController pid = new PIDController(.0045, .0, 0, 100); 
+
+
+
+
+
   // controllers
   Joystick driver = new Joystick(0);
   Joystick operator = new Joystick(1);
@@ -80,6 +92,9 @@ public class Robot extends TimedRobot {
 
     // smart dashboard put PID values
     SmartDashboard.putNumber("P Gain", 0);
+    SmartDashboard.putNumber("I Gain", 0);
+    SmartDashboard.putNumber("D Gain", 0);
+    SmartDashboard.putNumber("SetPoint", 0);
 
     // set motors to 0 at beginning
     m_frontLeft.set(ControlMode.PercentOutput, 0);
@@ -120,6 +135,51 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
+
+    double p = SmartDashboard.getNumber("P Gain", 0);
+    double i = SmartDashboard.getNumber("I Gain", 0);
+    double d = SmartDashboard.getNumber("D Gain", 0);
+    double rpm = SmartDashboard.getNumber("SetPoint", 0);
+
+    pid.setPID(p, i, d);
+
+
+    double s1 = m_shooterLeft.getSelectedSensorVelocity();
+    double s2 = m_shooterRight.getSelectedSensorVelocity();
+  
+    double speed = (s1 + s2) / 2;
+
+    SmartDashboard.putNumber("RPM", speed);
+
+    System.out.println("Speed 1: " + s1 + "\n");
+    System.out.println("Speed 2: " + s2 + "\n");
+
+    v1 = pid.calculate(s1, rpm);
+    v2 = pid.calculate(s2, rpm);
+
+    double ceiling = .5;
+
+    if (v1 > ceiling){
+      v1 = ceiling;
+    }
+    if (v2 >  ceiling){
+      v2 = ceiling;
+    }
+    if (v1 < -ceiling){
+      v1 = -ceiling;
+    }
+    if (v2 < -ceiling){
+      v2 = -ceiling;
+    }
+
+    System.out.println("Voltage 1: " + v1 + "\n");
+    System.out.println("Voltage 2: "+ v2 + "\n");
+    // m_shooterLeft.set(v1);
+    // m_shooterRight.set(v2);
+
+    m_shooterLeft.set(ControlMode.Current, v1);
+    m_shooterRight.set(ControlMode.Current, v2);
+
     // if(abs(driver.getRawAxis(LEFT_X)) > 0.04){
     //   System.out.println(driver.getRawAxis(LEFT_X));
     // }
@@ -296,7 +356,12 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    if(driver.getRawButton(Y_BUTTON)){
+      m_shooterLeft.set(ControlMode.Current, v1);
+      m_shooterRight.set(ControlMode.Current, v2);
+    }
+  }
 
   /** This function is called once when the robot is disabled. */
   @Override
