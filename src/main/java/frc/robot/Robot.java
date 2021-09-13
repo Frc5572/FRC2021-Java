@@ -104,6 +104,9 @@ public class Robot extends TimedRobot {
     m_backLeft.set(ControlMode.PercentOutput, 0);
     m_backRight.set(ControlMode.PercentOutput, 0);
 
+    m_shooterLeft.set(ControlMode.PercentOutput, 0);
+    m_shooterRight.set(ControlMode.PercentOutput, 0);
+
     // set neutral mode
     m_frontLeft.setNeutralMode(NeutralMode.Brake);
     m_frontRight.setNeutralMode(NeutralMode.Brake);
@@ -115,6 +118,9 @@ public class Robot extends TimedRobot {
     // invert motors
     // ??????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????? left motor?
     m_shooterLeft.setInverted(true);
+
+    m_shooterLeft.setNeutralMode(NeutralMode.Coast);
+    m_shooterRight.setNeutralMode(NeutralMode.Coast);
 
     // frontLeftSpeed.set(ControlMode.Follower, 5);
 
@@ -153,28 +159,28 @@ public class Robot extends TimedRobot {
     v1 = pid.calculate(s1, rpm);
     v2 = pid.calculate(s2, rpm);
 
-    double ceiling = .5;
+    // double ceiling = .5;
 
-    if (v1 > ceiling){
-      v1 = ceiling;
-    }
-    if (v2 >  ceiling){
-      v2 = ceiling;
-    }
-    if (v1 < -ceiling){
-      v1 = -ceiling;
-    }
-    if (v2 < -ceiling){
-      v2 = -ceiling;
-    }
+    // if (v1 > ceiling){
+    //   v1 = ceiling;
+    // }
+    // if (v2 >  ceiling){
+    //   v2 = ceiling;
+    // }
+    // if (v1 < -ceiling){
+    //   v1 = -ceiling;
+    // }
+    // if (v2 < -ceiling){
+    //   v2 = -ceiling;
+    // }
 
-    System.out.println("Voltage 1: " + v1);
-    System.out.println("Voltage 2: "+ v2);
-    // m_shooterLeft.set(v1);
-    // m_shooterRight.set(v2);
+    // // System.out.println("Voltage 1: " + v1);
+    // // System.out.println("Voltage 2: "+ v2);
+    // // m_shooterLeft.set(v1);
+    // // m_shooterRight.set(v2);
 
-    m_shooterLeft.set(ControlMode.Current, v1);
-    m_shooterRight.set(ControlMode.Current, v2);
+    // m_shooterLeft.set(ControlMode.Current, v1);
+    // m_shooterRight.set(ControlMode.Current, v2);
 
     // if(abs(driver.getRawAxis(LEFT_X)) > 0.04){
     //   System.out.println(driver.getRawAxis(LEFT_X));
@@ -354,8 +360,11 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     if(driver.getRawButton(Y_BUTTON)){
-      m_shooterLeft.set(ControlMode.Current, v1);
-      m_shooterRight.set(ControlMode.Current, v2);
+      m_shooterLeft.set(ControlMode.PercentOutput, .7);
+      m_shooterRight.set(ControlMode.PercentOutput, .7);
+    } else {
+      m_shooterLeft.set(ControlMode.PercentOutput, 0);
+      m_shooterRight.set(ControlMode.PercentOutput, 0);
     }
   }
 
