@@ -18,6 +18,8 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Compressor;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 
 /**
@@ -75,6 +77,9 @@ public class Robot extends TimedRobot {
   TalonSRX m_backLeft = new TalonSRX(8);
   TalonSRX m_backRight = new TalonSRX(7);
 
+  //Neos
+  CANSparkMax m_TurretMotor = new CANSparkMax(13, MotorType.kBrushless);
+
   // controllers
   Joystick driver = new Joystick(0);
   Joystick operator = new Joystick(1);
@@ -127,153 +132,7 @@ public class Robot extends TimedRobot {
    * SmartDashboard integrated updating.
    */
   @Override
-  public void robotPeriodic() {
-    // if(abs(driver.getRawAxis(LEFT_X)) > 0.04){
-    //   System.out.println(driver.getRawAxis(LEFT_X));
-    // }
-    // if(abs(driver.getRawAxis(LEFT_Y)) > 0.04){
-    //   System.out.println(driver.getRawAxis(LEFT_Y));
-    // }
-    // if(abs(driver.getRawAxis(LEFT_Y)) > 0.04){
-    //   System.out.println(driver.getRawAxis(LEFT_Y));
-    // }
-    // if(abs(driver.getRawAxis(RIGHT_X)) > 0.04){
-    //   System.out.println(driver.getRawAxis(RIGHT_X));
-    // }
-    // if(abs(driver.getRawAxis(RIGHT_Y)) > 0.04){
-    //   System.out.println(driver.getRawAxis(RIGHT_Y));
-    // }
-    // if(abs(driver.getRawAxis(RIGHT_Z)) > 0.04){
-    //   System.out.println(driver.getRawAxis(RIGHT_Z));
-    // }
-    // if(abs(driver.getRawAxis(LEFT_Z)) > 0.04){
-    //   System.out.println(driver.getRawAxis(LEFT_Z));
-    // }
-
-    // // driver buttons
-    // if(abs(driver.getRawAxis(LEFT_X)) > 0.04){
-    //   System.out.println("LEFT_X");
-    // }
-    // if(abs(driver.getRawAxis(LEFT_Y)) > 0.04){
-    //   System.out.println("LEFT_Y");
-    // }
-    // if(abs(driver.getRawAxis(LEFT_Z)) > 0.04){
-    //   System.out.println("LEFT_Z");
-    // }
-    // if(abs(driver.getRawAxis(RIGHT_X)) > 0.04){
-    //   System.out.println("RIGHT_X");
-    // }
-    // if(abs(driver.getRawAxis(RIGHT_Y)) > 0.04){
-    //   System.out.println("RIGHT_Y");
-    // }
-    // if(abs(driver.getRawAxis(RIGHT_Z)) > 0.04){
-    //   System.out.println("RIGHT_Z");
-    // }
-    // if(driver.getRawButton(RIGHT_BUMPER)){
-    //   System.out.println("RB");
-    // }
-    // if(driver.getRawButton(LEFT_BUMPER)){
-    //   System.out.println("LB");
-    // }
-    // if(driver.getRawButton(X_BUTTON)){
-    //   System.out.println("X");
-    // }
-    // if(driver.getRawButton(Y_BUTTON)){
-    //   System.out.println("Y");
-    // }
-    // if(driver.getRawButton(A_BUTTON)){
-    //   System.out.println("A");
-    // }
-    // if(driver.getRawButton(B_BUTTON)){
-    //   System.out.println("B");
-    // }
-    // if(driver.getRawButton(START_BUTTON)){
-    //   System.out.println("START");
-    // }
-    // if(driver.getRawButton(BACK_BUTTON)){
-    //   System.out.println("BACK");
-    // }
-    // if(driver.getRawButton(LEFT_STICK_BUTTON)){
-    //   System.out.println("LSTICK");
-    // }
-    // if(driver.getRawButton(RIGHT_STICK_BUTTON)){
-    //   System.out.println("RSTICK");
-    // }
-    // if(driver.getPOV() == POVDown){
-    //   System.out.println("POVDown");
-    // }
-    // if(driver.getPOV() == POVUp){
-    //   System.out.println("POVUp");
-    // }
-    // if(driver.getPOV() == POVLeft){
-    //   System.out.println("POVLeft");
-    // }
-    // if(driver.getPOV() == POVRight){
-    //   System.out.println("POVRight");
-    // }
-
-    // // operator buttons
-    // if(abs(operator.getRawAxis(LEFT_X)) > 0.04){
-    //   System.out.println("LEFT_X");
-    // }
-    // if(abs(operator.getRawAxis(LEFT_Y)) > 0.04){
-    //   System.out.println("LEFT_Y");
-    // }
-    // if(abs(operator.getRawAxis(LEFT_Z)) > 0.04){
-    //   System.out.println("LEFT_Z");
-    // }
-    // if(abs(operator.getRawAxis(RIGHT_X)) > 0.04){
-    //   System.out.println("RIGHT_X");
-    // }
-    // if(abs(operator.getRawAxis(RIGHT_Y)) > 0.04){
-    //   System.out.println("RIGHT_Y");
-    // }
-    // if(abs(operator.getRawAxis(RIGHT_Z)) > 0.04){
-    //   System.out.println("RIGHT_Z");
-    // }
-    // if(operator.getRawButton(RIGHT_BUMPER)){
-    //   System.out.println("RB");
-    // }
-    // if(operator.getRawButton(LEFT_BUMPER)){
-    //   System.out.println("LB");
-    // }
-    // if(operator.getRawButton(X_BUTTON)){
-    //   System.out.println("X");
-    // }
-    // if(operator.getRawButton(Y_BUTTON)){
-    //   System.out.println("Y");
-    // }
-    // if(operator.getRawButton(A_BUTTON)){
-    //   System.out.println("A");
-    // }
-    // if(operator.getRawButton(B_BUTTON)){
-    //   System.out.println("B");
-    // }
-    // if(operator.getRawButton(START_BUTTON)){
-    //   System.out.println("START");
-    // }
-    // if(operator.getRawButton(BACK_BUTTON)){
-    //   System.out.println("BACK");
-    // }
-    // if(operator.getRawButton(LEFT_STICK_BUTTON)){
-    //   System.out.println("LSTICK");
-    // }
-    // if(operator.getRawButton(RIGHT_STICK_BUTTON)){
-    //   System.out.println("RSTICK");
-    // }
-    // if(operator.getPOV() == POVDown){
-    //   System.out.println("POVDown");
-    // }
-    // if(operator.getPOV() == POVUp){
-    //   System.out.println("POVUp");
-    // }
-    // if(operator.getPOV() == POVLeft){
-    //   System.out.println("POVLeft");
-    // }
-    // if(operator.getPOV() == POVRight){
-    //   System.out.println("POVRight");
-    // }
-  }
+  public void robotPeriodic() {}
 
   @Override
   public void autonomousInit() {
@@ -337,6 +196,15 @@ public class Robot extends TimedRobot {
     }
     else{
       climberSol2.set(Value.kReverse);
+    }
+    if(driver.getRawButton(RIGHT_BUMPER)){
+      m_TurretMotor.set(.1);
+    }
+    else if(driver.getRawButton(LEFT_BUMPER)){
+      m_TurretMotor.set(-.1);
+    }
+    else {
+      m_TurretMotor.set(0);
     }
   }
 
