@@ -8,7 +8,7 @@ import static java.lang.Math.abs;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Compressor;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -51,10 +51,10 @@ public class Robot extends TimedRobot {
   final int BACK_BUTTON = 7;
   final int LEFT_STICK_BUTTON = 9;
   final int RIGHT_STICK_BUTTON = 10;
-  final int POVDown = 180;
-  final int POVUp = 0;
-  final int POVLeft = 270;
-  final int POVRight = 90;
+  final int DPadDown = 180;
+  final int DPadUp = 0;
+  final int DPadLeft = 270;
+  final int DPadRight = 90;
   int PCM1 = 0;
   int PCM2 = 1;
 
@@ -70,12 +70,15 @@ public class Robot extends TimedRobot {
   DoubleSolenoid hopperSol = new DoubleSolenoid(PCM1, 5, 2);
 
   // initialize motor names and ID
-  TalonSRX m_frontLeft = new TalonSRX(4);
-  TalonSRX m_frontRight = new TalonSRX(2);
-  TalonSRX m_middleLeft = new TalonSRX(6);
-  TalonSRX m_middleRight = new TalonSRX(3);
-  TalonSRX m_backLeft = new TalonSRX(8);
-  TalonSRX m_backRight = new TalonSRX(7);
+  WPI_TalonSRX m_frontLeft = new WPI_TalonSRX(4);
+  WPI_TalonSRX m_frontRight = new WPI_TalonSRX(2);
+  WPI_TalonSRX m_middleLeft = new WPI_TalonSRX(6);
+  WPI_TalonSRX m_middleRight = new WPI_TalonSRX(3);
+  WPI_TalonSRX m_backLeft = new WPI_TalonSRX(8);
+  WPI_TalonSRX m_backRight = new WPI_TalonSRX(7);
+  CANSparkMax m_Climber1 = new CANSparkMax(16, MotorType.kBrushless);
+  CANSparkMax m_Climber2 = new CANSparkMax(15, MotorType.kBrushless);
+  SpeedControllerGroup climberMotors = new SpeedControllerGroup(m_Climber1, m_Climber2);
 
   //Neos
   CANSparkMax m_TurretMotor = new CANSparkMax(13, MotorType.kBrushless);
@@ -116,6 +119,8 @@ public class Robot extends TimedRobot {
     hopperSol.set(Value.kForward);
     climberSol1.set(Value.kReverse);
     climberSol2.set(Value.kReverse);
+
+    m_Climber1.setInverted(true);
 
     // frontLeftSpeed.set(ControlMode.Follower, 5);
 
@@ -197,14 +202,22 @@ public class Robot extends TimedRobot {
     else{
       climberSol2.set(Value.kReverse);
     }
-    if(driver.getRawButton(RIGHT_BUMPER)){
+    if(operator.getRawButton(RIGHT_BUMPER)){
       m_TurretMotor.set(.1);
     }
-    else if(driver.getRawButton(LEFT_BUMPER)){
+    else if(operator.getRawButton(LEFT_BUMPER)){
       m_TurretMotor.set(-.1);
     }
     else {
       m_TurretMotor.set(0);
+    }
+
+    if(driver.getRawButton(DPadDown)){
+      // climberMotors.set(.6);
+      System.out.println("down");
+    }
+    else{
+      climberMotors.set(0);
     }
   }
 
