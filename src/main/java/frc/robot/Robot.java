@@ -8,10 +8,12 @@ import static java.lang.Math.abs;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.controller.PIDController;
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
@@ -55,6 +57,12 @@ public class Robot extends TimedRobot {
   final int POVUp = 0;
   final int POVLeft = 270;
   final int POVRight = 90;
+  // final int RIGHT_TRIGGER = 12;
+
+
+  // public var for shooter PID
+  double v1;
+  double v2;
   int PCM1 = 0;
   int PCM2 = 1;
 
@@ -70,12 +78,24 @@ public class Robot extends TimedRobot {
   DoubleSolenoid hopperSol = new DoubleSolenoid(PCM1, 5, 2);
 
   // initialize motor names and ID
-  TalonSRX m_frontLeft = new TalonSRX(4);
-  TalonSRX m_frontRight = new TalonSRX(2);
-  TalonSRX m_middleLeft = new TalonSRX(6);
-  TalonSRX m_middleRight = new TalonSRX(3);
-  TalonSRX m_backLeft = new TalonSRX(8);
-  TalonSRX m_backRight = new TalonSRX(7);
+  WPI_TalonSRX m_frontLeft = new WPI_TalonSRX(4);
+  WPI_TalonSRX m_frontRight = new WPI_TalonSRX(2);
+  WPI_TalonSRX m_middleLeft = new WPI_TalonSRX(6);
+  WPI_TalonSRX m_middleRight = new WPI_TalonSRX(3);
+  WPI_TalonSRX m_backLeft = new WPI_TalonSRX(8);
+  WPI_TalonSRX m_backRight = new WPI_TalonSRX(7);
+
+  WPI_TalonSRX m_shooterLeft = new WPI_TalonSRX(12);
+  WPI_TalonSRX m_shooterRight = new WPI_TalonSRX(14);
+
+  SpeedControllerGroup shooterMotors = new SpeedControllerGroup(m_shooterLeft, m_shooterRight);
+
+  // PID object
+  PIDController pid = new PIDController(.0045, .0, 0, 100); 
+
+
+
+
 
   //Neos
   CANSparkMax m_TurretMotor = new CANSparkMax(13, MotorType.kBrushless);
@@ -91,6 +111,12 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
 
+    // smart dashboard put PID values
+    // SmartDashboard.putNumber("P Gain", 0);
+    // SmartDashboard.putNumber("I Gain", 0);
+    // SmartDashboard.putNumber("D Gain", 0);
+    // SmartDashboard.putNumber("SetPoint", 0);
+
     // set motors to 0 at beginning
     m_frontLeft.set(ControlMode.PercentOutput, 0);
     m_frontRight.set(ControlMode.PercentOutput, 0);
@@ -98,6 +124,9 @@ public class Robot extends TimedRobot {
     m_middleRight.set(ControlMode.PercentOutput, 0);
     m_backLeft.set(ControlMode.PercentOutput, 0);
     m_backRight.set(ControlMode.PercentOutput, 0);
+
+    m_shooterLeft.set(ControlMode.PercentOutput, 0);
+    m_shooterRight.set(ControlMode.PercentOutput, 0);
 
     // set neutral mode
     m_frontLeft.setNeutralMode(NeutralMode.Brake);
@@ -107,7 +136,12 @@ public class Robot extends TimedRobot {
     m_backLeft.setNeutralMode(NeutralMode.Brake);
     m_backRight.setNeutralMode(NeutralMode.Brake);
 
+    // invert motors
+    // ??????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????? left motor?
+    m_shooterLeft.setInverted(true);
 
+    m_shooterLeft.setNeutralMode(NeutralMode.Coast);
+    m_shooterRight.setNeutralMode(NeutralMode.Coast);
     compressor.setClosedLoopControl(true);
     compressor.start();
 
@@ -132,7 +166,14 @@ public class Robot extends TimedRobot {
    * SmartDashboard integrated updating.
    */
   @Override
-  public void robotPeriodic() {}
+  public void robotPeriodic() {
+    double s1 = m_shooterLeft.getSelectedSensorVelocity();
+    double s2 = m_shooterRight.getSelectedSensorVelocity();
+  
+    double speed = (s1 + s2) / 2;
+
+    SmartDashboard.putNumber("RPM", speed);
+  }
 
   @Override
   public void autonomousInit() {
@@ -167,6 +208,13 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+    if(driver.getRawAxis(RIGHT_Z) > .4){
+      m_shooterLeft.set(ControlMode.PercentOutput, .7);
+      m_shooterRight.set(ControlMode.PercentOutput, .7);
+    } else {
+      m_shooterLeft.set(ControlMode.PercentOutput, 0);
+      m_shooterRight.set(ControlMode.PercentOutput, 0);
+    }
     // intake on B
     if(driver.getRawButton(B_BUTTON)){
       intakeSol.set(Value.kReverse);
