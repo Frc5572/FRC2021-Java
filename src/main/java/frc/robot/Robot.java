@@ -10,13 +10,18 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Compressor;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 
 /**
@@ -30,6 +35,8 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  
+  // create constants
   final int LEFT_Z = 2;
   final int LEFT_X = 0;
   final int LEFT_Y = 1;
@@ -56,10 +63,19 @@ public class Robot extends TimedRobot {
   // public var for shooter PID
   double v1;
   double v2;
+  int PCM1 = 0;
+  int PCM2 = 1;
 
 
-  //initialize timer
+  // initialize timer
   Timer timer = new Timer();
+
+  Compressor compressor = new Compressor();
+
+  DoubleSolenoid intakeSol = new DoubleSolenoid(PCM1, 6, 1);
+  DoubleSolenoid climberSol2 = new DoubleSolenoid(PCM1, 7, 0);
+  DoubleSolenoid climberSol1 = new DoubleSolenoid(PCM2, 4, 3);
+  DoubleSolenoid hopperSol = new DoubleSolenoid(PCM1, 5, 2);
 
   // initialize motor names and ID
   WPI_TalonSRX m_frontLeft = new WPI_TalonSRX(4);
@@ -80,6 +96,9 @@ public class Robot extends TimedRobot {
 
 
 
+
+  //Neos
+  CANSparkMax m_TurretMotor = new CANSparkMax(13, MotorType.kBrushless);
 
   // controllers
   Joystick driver = new Joystick(0);
@@ -123,6 +142,14 @@ public class Robot extends TimedRobot {
 
     m_shooterLeft.setNeutralMode(NeutralMode.Coast);
     m_shooterRight.setNeutralMode(NeutralMode.Coast);
+    compressor.setClosedLoopControl(true);
+    compressor.start();
+
+    // set solenoids to start position
+    intakeSol.set(Value.kForward);
+    hopperSol.set(Value.kForward);
+    climberSol1.set(Value.kReverse);
+    climberSol2.set(Value.kReverse);
 
     // frontLeftSpeed.set(ControlMode.Follower, 5);
 
@@ -140,192 +167,12 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-
-    // double p = SmartDashboard.getNumber("P Gain", 0);
-    // double i = SmartDashboard.getNumber("I Gain", 0);
-    // double d = SmartDashboard.getNumber("D Gain", 0);
-    // double rpm = SmartDashboard.getNumber("SetPoint", 0);
-
-    // pid.setPID(p, i, d);
-
     double s1 = m_shooterLeft.getSelectedSensorVelocity();
     double s2 = m_shooterRight.getSelectedSensorVelocity();
   
     double speed = (s1 + s2) / 2;
 
     SmartDashboard.putNumber("RPM", speed);
-
-    // System.out.println("Speed 1: " + s1);
-    // System.out.println("Speed 2: " + s2);
-
-    // v1 = pid.calculate(s1, rpm);
-    // v2 = pid.calculate(s2, rpm);
-
-    // double ceiling = .5;
-
-    // if (v1 > ceiling){
-    //   v1 = ceiling;
-    // }
-    // if (v2 >  ceiling){
-    //   v2 = ceiling;
-    // }
-    // if (v1 < -ceiling){
-    //   v1 = -ceiling;
-    // }
-    // if (v2 < -ceiling){
-    //   v2 = -ceiling;
-    // }
-
-    // // System.out.println("Voltage 1: " + v1);
-    // // System.out.println("Voltage 2: "+ v2);
-    // // m_shooterLeft.set(v1);
-    // // m_shooterRight.set(v2);
-
-    // m_shooterLeft.set(ControlMode.Current, v1);
-    // m_shooterRight.set(ControlMode.Current, v2);
-
-    // if(abs(driver.getRawAxis(LEFT_X)) > 0.04){
-    //   System.out.println(driver.getRawAxis(LEFT_X));
-    // }
-    // if(abs(driver.getRawAxis(LEFT_Y)) > 0.04){
-    //   System.out.println(driver.getRawAxis(LEFT_Y));
-    // }
-    // if(abs(driver.getRawAxis(LEFT_Y)) > 0.04){
-    //   System.out.println(driver.getRawAxis(LEFT_Y));
-    // }
-    // if(abs(driver.getRawAxis(RIGHT_X)) > 0.04){
-    //   System.out.println(driver.getRawAxis(RIGHT_X));
-    // }
-    // if(abs(driver.getRawAxis(RIGHT_Y)) > 0.04){
-    //   System.out.println(driver.getRawAxis(RIGHT_Y));
-    // }
-    // if(abs(driver.getRawAxis(RIGHT_Z)) > 0.04){
-    //   System.out.println(driver.getRawAxis(RIGHT_Z));
-    // }
-    // if(abs(driver.getRawAxis(LEFT_Z)) > 0.04){
-    //   System.out.println(driver.getRawAxis(LEFT_Z));
-    // }
-    if(abs(driver.getRawAxis(LEFT_X)) > 0.04){
-      System.out.println("LEFT_X");
-    }
-    if(abs(driver.getRawAxis(LEFT_Y)) > 0.04){
-      System.out.println("LEFT_Y");
-    }
-    if(abs(driver.getRawAxis(LEFT_Z)) > 0.04){
-      System.out.println("LEFT_Z");
-    }
-    if(abs(driver.getRawAxis(RIGHT_X)) > 0.04){
-      System.out.println("RIGHT_X");
-    }
-    if(abs(driver.getRawAxis(RIGHT_Y)) > 0.04){
-      System.out.println("RIGHT_Y");
-    }
-    if(abs(driver.getRawAxis(RIGHT_Z)) > 0.04){
-      System.out.println("RIGHT_Z");
-    }
-    if(driver.getRawButton(RIGHT_BUMPER)){
-      System.out.println("RB");
-    }
-    if(driver.getRawButton(LEFT_BUMPER)){
-      System.out.println("LB");
-    }
-    if(driver.getRawButton(X_BUTTON)){
-      System.out.println("X");
-    }
-    if(driver.getRawButton(Y_BUTTON)){
-      System.out.println("Y");
-    }
-    if(driver.getRawButton(A_BUTTON)){
-      System.out.println("A");
-    }
-    if(driver.getRawButton(B_BUTTON)){
-      System.out.println("B");
-    }
-    if(driver.getRawButton(START_BUTTON)){
-      System.out.println("START");
-    }
-    if(driver.getRawButton(BACK_BUTTON)){
-      System.out.println("BACK");
-    }
-    if(driver.getRawButton(LEFT_STICK_BUTTON)){
-      System.out.println("LSTICK");
-    }
-    if(driver.getRawButton(RIGHT_STICK_BUTTON)){
-      System.out.println("RSTICK");
-    }
-    if(driver.getPOV() == POVDown){
-      System.out.println("POVDown");
-    }
-    if(driver.getPOV() == POVUp){
-      System.out.println("POVUp");
-    }
-    if(driver.getPOV() == POVLeft){
-      System.out.println("POVLeft");
-    }
-    if(driver.getPOV() == POVRight){
-      System.out.println("POVRight");
-    }
-    // operator buttons
-    if(abs(operator.getRawAxis(LEFT_X)) > 0.04){
-      System.out.println("LEFT_X");
-    }
-    if(abs(operator.getRawAxis(LEFT_Y)) > 0.04){
-      System.out.println("LEFT_Y");
-    }
-    if(abs(operator.getRawAxis(LEFT_Z)) > 0.04){
-      System.out.println("LEFT_Z");
-    }
-    if(abs(operator.getRawAxis(RIGHT_X)) > 0.04){
-      System.out.println("RIGHT_X");
-    }
-    if(abs(operator.getRawAxis(RIGHT_Y)) > 0.04){
-      System.out.println("RIGHT_Y");
-    }
-    if(abs(operator.getRawAxis(RIGHT_Z)) > 0.04){
-      System.out.println("RIGHT_Z");
-    }
-    if(operator.getRawButton(RIGHT_BUMPER)){
-      System.out.println("RB");
-    }
-    if(operator.getRawButton(LEFT_BUMPER)){
-      System.out.println("LB");
-    }
-    if(operator.getRawButton(X_BUTTON)){
-      System.out.println("X");
-    }
-    if(operator.getRawButton(Y_BUTTON)){
-      System.out.println("Y");
-    }
-    if(operator.getRawButton(A_BUTTON)){
-      System.out.println("A");
-    }
-    if(operator.getRawButton(B_BUTTON)){
-      System.out.println("B");
-    }
-    if(operator.getRawButton(START_BUTTON)){
-      System.out.println("START");
-    }
-    if(operator.getRawButton(BACK_BUTTON)){
-      System.out.println("BACK");
-    }
-    if(operator.getRawButton(LEFT_STICK_BUTTON)){
-      System.out.println("LSTICK");
-    }
-    if(operator.getRawButton(RIGHT_STICK_BUTTON)){
-      System.out.println("RSTICK");
-    }
-    if(operator.getPOV() == POVDown){
-      System.out.println("POVDown");
-    }
-    if(operator.getPOV() == POVUp){
-      System.out.println("POVUp");
-    }
-    if(operator.getPOV() == POVLeft){
-      System.out.println("POVLeft");
-    }
-    if(operator.getPOV() == POVRight){
-      System.out.println("POVRight");
-    }
   }
 
   @Override
@@ -367,6 +214,45 @@ public class Robot extends TimedRobot {
     } else {
       m_shooterLeft.set(ControlMode.PercentOutput, 0);
       m_shooterRight.set(ControlMode.PercentOutput, 0);
+    }
+    // intake on B
+    if(driver.getRawButton(B_BUTTON)){
+      intakeSol.set(Value.kReverse);
+    }
+    else{
+      intakeSol.set(Value.kForward);
+    }
+    // hopper on A
+    if(driver.getRawButton(A_BUTTON)){
+      hopperSol.set(Value.kReverse);
+    }
+    else{
+      hopperSol.set(Value.kForward);
+    }
+    // climber 1 on X
+    if(driver.getRawButton(X_BUTTON)){
+      climberSol1.set(Value.kForward);
+      System.out.println("Pressed X");
+    }
+    else{
+      climberSol1.set(Value.kReverse);
+    }
+    // climber 2 on Y
+    if(driver.getRawButton(Y_BUTTON)){
+      climberSol2.set(Value.kForward);
+      System.out.println("Pressed Y");
+    }
+    else{
+      climberSol2.set(Value.kReverse);
+    }
+    if(driver.getRawButton(RIGHT_BUMPER)){
+      m_TurretMotor.set(.1);
+    }
+    else if(driver.getRawButton(LEFT_BUMPER)){
+      m_TurretMotor.set(-.1);
+    }
+    else {
+      m_TurretMotor.set(0);
     }
   }
 
