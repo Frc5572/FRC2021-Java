@@ -4,7 +4,7 @@
 
 package frc.robot;
 
-import static java.lang.Math.abs;
+// import static java.lang.Math.abs;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.Servo;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -57,7 +58,6 @@ public class Robot extends TimedRobot {
   final int POVUp = 0;
   final int POVLeft = 270;
   final int POVRight = 90;
-  // final int RIGHT_TRIGGER = 12;
 
 
   // public var for shooter PID
@@ -70,6 +70,7 @@ public class Robot extends TimedRobot {
   // initialize timer
   Timer timer = new Timer();
 
+  // init compressor
   Compressor compressor = new Compressor();
 
   DoubleSolenoid intakeSol = new DoubleSolenoid(PCM1, 6, 1);
@@ -77,7 +78,12 @@ public class Robot extends TimedRobot {
   DoubleSolenoid climberSol1 = new DoubleSolenoid(PCM2, 4, 3);
   DoubleSolenoid hopperSol = new DoubleSolenoid(PCM1, 5, 2);
 
-  // initialize motor names and ID
+
+  //                         not right ?????????????????????????????????????????????????????????????
+  Servo leftServo = new Servo(0);
+  Servo rightServo = new Servo(1);
+
+  // initialize  talon motors
   WPI_TalonSRX m_frontLeft = new WPI_TalonSRX(4);
   WPI_TalonSRX m_frontRight = new WPI_TalonSRX(2);
   WPI_TalonSRX m_middleLeft = new WPI_TalonSRX(6);
@@ -88,26 +94,20 @@ public class Robot extends TimedRobot {
   WPI_TalonSRX m_shooterLeft = new WPI_TalonSRX(12);
   WPI_TalonSRX m_shooterRight = new WPI_TalonSRX(14);
 
+  // initialize neo motors
+  CANSparkMax m_TurretMotor = new CANSparkMax(13, MotorType.kBrushless);
+
+  // init speed controller groups
   SpeedControllerGroup shooterMotors = new SpeedControllerGroup(m_shooterLeft, m_shooterRight);
 
   // PID object
   PIDController pid = new PIDController(.0045, .0, 0, 100); 
 
-
-
-
-
-  //Neos
-  CANSparkMax m_TurretMotor = new CANSparkMax(13, MotorType.kBrushless);
-
   // controllers
   Joystick driver = new Joystick(0);
   Joystick operator = new Joystick(1);
 
-  /**
-   * This function is run when the robot is first started up and should be used for any
-   * initialization code.
-   */
+
   @Override
   public void robotInit() {
 
@@ -136,12 +136,13 @@ public class Robot extends TimedRobot {
     m_backLeft.setNeutralMode(NeutralMode.Brake);
     m_backRight.setNeutralMode(NeutralMode.Brake);
 
-    // invert motors
-    // ??????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????? left motor?
-    m_shooterLeft.setInverted(true);
-
     m_shooterLeft.setNeutralMode(NeutralMode.Coast);
     m_shooterRight.setNeutralMode(NeutralMode.Coast);
+
+    // invert motors
+    m_shooterLeft.setInverted(true);
+
+    // start compressor
     compressor.setClosedLoopControl(true);
     compressor.start();
 
@@ -151,27 +152,21 @@ public class Robot extends TimedRobot {
     climberSol1.set(Value.kReverse);
     climberSol2.set(Value.kReverse);
 
-    // frontLeftSpeed.set(ControlMode.Follower, 5);
-
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
   }
 
-  /**
-   * This function is called every robot packet, no matter the mode. Use this for items like
-   * diagnostics that you want ran during disabled, autonomous, teleoperated and test.
-   *
-   * <p>This runs after the mode specific periodic functions, but before LiveWindow and
-   * SmartDashboard integrated updating.
-   */
   @Override
   public void robotPeriodic() {
+    // assign variable to shooter motor speed
     double s1 = m_shooterLeft.getSelectedSensorVelocity();
     double s2 = m_shooterRight.getSelectedSensorVelocity();
   
+    // average speed between two shooter motors
     double speed = (s1 + s2) / 2;
 
+    // output shooter motor speed to smartdashboard
     SmartDashboard.putNumber("RPM", speed);
   }
 
@@ -182,12 +177,11 @@ public class Robot extends TimedRobot {
     timer.start();
 
     m_autoSelected = m_chooser.getSelected();
-    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
+    m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
 
   }
 
-  /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
     switch (m_autoSelected) {
@@ -201,13 +195,22 @@ public class Robot extends TimedRobot {
     }
   }
 
-  /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {}
 
-  /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+
+    // servo to .5 on driver.X
+    if(operator.getRawButton(X_BUTTON)){
+      leftServo.set(0.5);
+      rightServo.set(0.5);
+    } else {
+      leftServo.set(0);
+      rightServo.set(0);
+    }
+
+    // shooter on driver right trigger
     if(driver.getRawAxis(RIGHT_Z) > .4){
       m_shooterLeft.set(ControlMode.PercentOutput, .7);
       m_shooterRight.set(ControlMode.PercentOutput, .7);
@@ -245,6 +248,7 @@ public class Robot extends TimedRobot {
     else{
       climberSol2.set(Value.kReverse);
     }
+    // turret left and right on driver bumpers
     if(driver.getRawButton(RIGHT_BUMPER)){
       m_TurretMotor.set(.1);
     }
