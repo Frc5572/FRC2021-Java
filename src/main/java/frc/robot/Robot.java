@@ -70,15 +70,15 @@ public class Robot extends TimedRobot {
   DoubleSolenoid hopperSol = new DoubleSolenoid(PCM1, 5, 2);
 
   // initialize motor names and ID
-  WPI_TalonSRX m_frontLeft = new WPI_TalonSRX(4);
-  WPI_TalonSRX m_frontRight = new WPI_TalonSRX(2);
-  WPI_TalonSRX m_middleLeft = new WPI_TalonSRX(6);
-  WPI_TalonSRX m_middleRight = new WPI_TalonSRX(3);
-  WPI_TalonSRX m_backLeft = new WPI_TalonSRX(8);
-  WPI_TalonSRX m_backRight = new WPI_TalonSRX(7);
+  // WPI_TalonSRX m_frontLeft = new WPI_TalonSRX(4);
+  // WPI_TalonSRX m_frontRight = new WPI_TalonSRX(2);
+  // WPI_TalonSRX m_middleLeft = new WPI_TalonSRX(6);
+  // WPI_TalonSRX m_middleRight = new WPI_TalonSRX(3);
+  // WPI_TalonSRX m_backLeft = new WPI_TalonSRX(8);
+  // WPI_TalonSRX m_backRight = new WPI_TalonSRX(7);
   CANSparkMax m_Climber1 = new CANSparkMax(16, MotorType.kBrushless);
   CANSparkMax m_Climber2 = new CANSparkMax(15, MotorType.kBrushless);
-  SpeedControllerGroup climberMotors = new SpeedControllerGroup(m_Climber1, m_Climber2);
+  //SpeedControllerGroup climberMotors = new SpeedControllerGroup(m_Climber1, m_Climber2);
 
   //Neos
   CANSparkMax m_TurretMotor = new CANSparkMax(13, MotorType.kBrushless);
@@ -94,21 +94,21 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
 
-    // set motors to 0 at beginning
-    m_frontLeft.set(ControlMode.PercentOutput, 0);
-    m_frontRight.set(ControlMode.PercentOutput, 0);
-    m_middleLeft.set(ControlMode.PercentOutput, 0);
-    m_middleRight.set(ControlMode.PercentOutput, 0);
-    m_backLeft.set(ControlMode.PercentOutput, 0);
-    m_backRight.set(ControlMode.PercentOutput, 0);
+    // // set motors to 0 at beginning
+    // m_frontLeft.set(ControlMode.PercentOutput, 0);
+    // m_frontRight.set(ControlMode.PercentOutput, 0);
+    // m_middleLeft.set(ControlMode.PercentOutput, 0);
+    // m_middleRight.set(ControlMode.PercentOutput, 0);
+    // m_backLeft.set(ControlMode.PercentOutput, 0);
+    // m_backRight.set(ControlMode.PercentOutput, 0);
 
-    // set neutral mode
-    m_frontLeft.setNeutralMode(NeutralMode.Brake);
-    m_frontRight.setNeutralMode(NeutralMode.Brake);
-    m_middleLeft.setNeutralMode(NeutralMode.Brake);
-    m_middleRight.setNeutralMode(NeutralMode.Brake);
-    m_backLeft.setNeutralMode(NeutralMode.Brake);
-    m_backRight.setNeutralMode(NeutralMode.Brake);
+    // // set neutral mode
+    // m_frontLeft.setNeutralMode(NeutralMode.Brake);
+    // m_frontRight.setNeutralMode(NeutralMode.Brake);
+    // m_middleLeft.setNeutralMode(NeutralMode.Brake);
+    // m_middleRight.setNeutralMode(NeutralMode.Brake);
+    // m_backLeft.setNeutralMode(NeutralMode.Brake);
+    // m_backRight.setNeutralMode(NeutralMode.Brake);
 
 
     compressor.setClosedLoopControl(true);
@@ -212,12 +212,12 @@ public class Robot extends TimedRobot {
       m_TurretMotor.set(0);
     }
 
-    if(driver.getRawButton(DPadDown)){
-      // climberMotors.set(.6);
+    if(driver.getPOV() == DPadDown){
+      climberSol1.set(.6);
       System.out.println("down");
     }
     else{
-      climberMotors.set(0);
+      climberSol1.set(0);
     }
   }
 
