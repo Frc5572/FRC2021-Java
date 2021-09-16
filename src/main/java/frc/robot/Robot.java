@@ -12,6 +12,8 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.controller.PIDController;
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
@@ -55,6 +57,12 @@ public class Robot extends TimedRobot {
   final int DPadUp = 0;
   final int DPadLeft = 270;
   final int DPadRight = 90;
+  // final int RIGHT_TRIGGER = 12;
+
+
+  // public var for shooter PID
+  double v1;
+  double v2;
   int PCM1 = 0;
   int PCM2 = 1;
 
@@ -76,9 +84,18 @@ public class Robot extends TimedRobot {
   // WPI_TalonSRX m_middleRight = new WPI_TalonSRX(3);
   // WPI_TalonSRX m_backLeft = new WPI_TalonSRX(8);
   // WPI_TalonSRX m_backRight = new WPI_TalonSRX(7);
+
+  WPI_TalonSRX m_shooterLeft = new WPI_TalonSRX(12);
+  WPI_TalonSRX m_shooterRight = new WPI_TalonSRX(14);
+
+  SpeedControllerGroup shooterMotors = new SpeedControllerGroup(m_shooterLeft, m_shooterRight);
+
+  // PID object
+  PIDController pid = new PIDController(.0045, .0, 0, 100); 
+
   CANSparkMax m_Climber1 = new CANSparkMax(16, MotorType.kBrushless);
   CANSparkMax m_Climber2 = new CANSparkMax(15, MotorType.kBrushless);
-  //SpeedControllerGroup climberMotors = new SpeedControllerGroup(m_Climber1, m_Climber2);
+  SpeedControllerGroup climberMotors = new SpeedControllerGroup(m_Climber1, m_Climber2);
 
   //Neos
   CANSparkMax m_TurretMotor = new CANSparkMax(13, MotorType.kBrushless);
@@ -94,7 +111,13 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
 
-    // // set motors to 0 at beginning
+    // smart dashboard put PID values
+    // SmartDashboard.putNumber("P Gain", 0);
+    // SmartDashboard.putNumber("I Gain", 0);
+    // SmartDashboard.putNumber("D Gain", 0);
+    // SmartDashboard.putNumber("SetPoint", 0);
+
+    // set motors to 0 at beginning
     // m_frontLeft.set(ControlMode.PercentOutput, 0);
     // m_frontRight.set(ControlMode.PercentOutput, 0);
     // m_middleLeft.set(ControlMode.PercentOutput, 0);
@@ -102,7 +125,10 @@ public class Robot extends TimedRobot {
     // m_backLeft.set(ControlMode.PercentOutput, 0);
     // m_backRight.set(ControlMode.PercentOutput, 0);
 
-    // // set neutral mode
+    m_shooterLeft.set(ControlMode.PercentOutput, 0);
+    m_shooterRight.set(ControlMode.PercentOutput, 0);
+
+    // set neutral mode
     // m_frontLeft.setNeutralMode(NeutralMode.Brake);
     // m_frontRight.setNeutralMode(NeutralMode.Brake);
     // m_middleLeft.setNeutralMode(NeutralMode.Brake);
@@ -110,7 +136,12 @@ public class Robot extends TimedRobot {
     // m_backLeft.setNeutralMode(NeutralMode.Brake);
     // m_backRight.setNeutralMode(NeutralMode.Brake);
 
+    // invert motors
+    // ??????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????? left motor?
+    m_shooterLeft.setInverted(true);
 
+    m_shooterLeft.setNeutralMode(NeutralMode.Coast);
+    m_shooterRight.setNeutralMode(NeutralMode.Coast);
     compressor.setClosedLoopControl(true);
     compressor.start();
 
@@ -137,7 +168,14 @@ public class Robot extends TimedRobot {
    * SmartDashboard integrated updating.
    */
   @Override
-  public void robotPeriodic() {}
+  public void robotPeriodic() {
+    double s1 = m_shooterLeft.getSelectedSensorVelocity();
+    double s2 = m_shooterRight.getSelectedSensorVelocity();
+  
+    double speed = (s1 + s2) / 2;
+
+    SmartDashboard.putNumber("RPM", speed);
+  }
 
   @Override
   public void autonomousInit() {
@@ -172,6 +210,13 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+    if(driver.getRawAxis(RIGHT_Z) > .4){
+      m_shooterLeft.set(ControlMode.PercentOutput, .7);
+      m_shooterRight.set(ControlMode.PercentOutput, .7);
+    } else {
+      m_shooterLeft.set(ControlMode.PercentOutput, 0);
+      m_shooterRight.set(ControlMode.PercentOutput, 0);
+    }
     // intake on B
     if(driver.getRawButton(B_BUTTON)){
       intakeSol.set(Value.kReverse);
@@ -213,11 +258,11 @@ public class Robot extends TimedRobot {
     }
 
     if(driver.getPOV() == DPadDown){
-      climberSol1.set(.6);
+      climberMotors.set(.6);
       System.out.println("down");
     }
     else{
-      climberSol1.set(0);
+      climberMotors.set(0);
     }
   }
 
