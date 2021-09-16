@@ -90,6 +90,7 @@ public class Robot extends TimedRobot {
 
   SpeedControllerGroup shooterMotors = new SpeedControllerGroup(m_shooterLeft, m_shooterRight);
 
+  WPI_TalonSRX m_IntakeMotors = new WPI_TalonSRX(11);
   // PID object
   PIDController pid = new PIDController(.0045, .0, 0, 100); 
 
@@ -237,6 +238,7 @@ public class Robot extends TimedRobot {
       climberSol1.set(Value.kForward);
       System.out.println("Pressed X");
     }
+    
     else{
       climberSol1.set(Value.kReverse);
     }
@@ -248,8 +250,19 @@ public class Robot extends TimedRobot {
     else{
       climberSol2.set(Value.kReverse);
     }
+
+    //Intake on B
+    if(operator.getRawButton(B_BUTTON)){
+      //m_IntakeMotors.set(.5);
+      System.out.println("Hi");
+     }
+    else{
+      m_IntakeMotors.set(0);
+    }
+
+    //Turret bumpers
     if(operator.getRawButton(RIGHT_BUMPER)){
-      m_TurretMotor.set(.1);
+      // m_TurretMotor.set(.1);
     }
     else if(operator.getRawButton(LEFT_BUMPER)){
       m_TurretMotor.set(-.1);
@@ -257,7 +270,7 @@ public class Robot extends TimedRobot {
     else {
       m_TurretMotor.set(0);
     }
-
+    //Climbing motors
     if(driver.getPOV() == DPadDown){
       climberMotors.set(.6);
       System.out.println("down");
