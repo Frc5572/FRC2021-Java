@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-// import static java.lang.Math.abs;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -23,7 +21,6 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Servo;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -54,10 +51,11 @@ public class Robot extends TimedRobot {
   final int BACK_BUTTON = 7;
   final int LEFT_STICK_BUTTON = 9;
   final int RIGHT_STICK_BUTTON = 10;
-  final int POVDown = 180;
-  final int POVUp = 0;
-  final int POVLeft = 270;
-  final int POVRight = 90;
+  final int DPadDown = 180;
+  final int DPadUp = 0;
+  final int DPadLeft = 270;
+  final int DPadRight = 90;
+  // final int RIGHT_TRIGGER = 12;
 
 
   // public var for shooter PID
@@ -85,11 +83,13 @@ public class Robot extends TimedRobot {
 
   // initialize  talon motors
   WPI_TalonSRX m_frontLeft = new WPI_TalonSRX(4);
-  WPI_TalonSRX m_frontRight = new WPI_TalonSRX(2);
-  WPI_TalonSRX m_middleLeft = new WPI_TalonSRX(6);
-  WPI_TalonSRX m_middleRight = new WPI_TalonSRX(3);
+  // WPI_TalonSRX m_middleLeft = new WPI_TalonSRX(6);
   WPI_TalonSRX m_backLeft = new WPI_TalonSRX(8);
-  WPI_TalonSRX m_backRight = new WPI_TalonSRX(7);
+  SpeedControllerGroup leftDriveMotors = new SpeedControllerGroup(m_frontLeft, m_backLeft);
+  WPI_TalonSRX m_frontRight = new WPI_TalonSRX(3);
+  // WPI_TalonSRX m_middleRight = new WPI_TalonSRX(3);
+  WPI_TalonSRX m_backRight = new WPI_TalonSRX(2);
+  SpeedControllerGroup rightDriveMotors = new SpeedControllerGroup(m_frontRight, m_backRight);
 
   WPI_TalonSRX m_shooterLeft = new WPI_TalonSRX(12);
   WPI_TalonSRX m_shooterRight = new WPI_TalonSRX(14);
@@ -102,6 +102,13 @@ public class Robot extends TimedRobot {
 
   // PID object
   PIDController pid = new PIDController(.0045, .0, 0, 100); 
+
+  CANSparkMax m_Climber1 = new CANSparkMax(16, MotorType.kBrushless);
+  CANSparkMax m_Climber2 = new CANSparkMax(15, MotorType.kBrushless);
+  SpeedControllerGroup climberMotors = new SpeedControllerGroup(m_Climber1, m_Climber2);
+
+  //Neos
+  CANSparkMax m_TurretMotor = new CANSparkMax(13, MotorType.kBrushless);
 
   // controllers
   Joystick driver = new Joystick(0);
@@ -120,8 +127,8 @@ public class Robot extends TimedRobot {
     // set motors to 0 at beginning
     m_frontLeft.set(ControlMode.PercentOutput, 0);
     m_frontRight.set(ControlMode.PercentOutput, 0);
-    m_middleLeft.set(ControlMode.PercentOutput, 0);
-    m_middleRight.set(ControlMode.PercentOutput, 0);
+    // m_middleLeft.set(ControlMode.PercentOutput, 0);
+    // m_middleRight.set(ControlMode.PercentOutput, 0);
     m_backLeft.set(ControlMode.PercentOutput, 0);
     m_backRight.set(ControlMode.PercentOutput, 0);
 
@@ -133,18 +140,19 @@ public class Robot extends TimedRobot {
     leftServo.setBounds(2.0, 1.8, 1.5, 1.2, 1.0);
 
     // set neutral mode
-    m_frontLeft.setNeutralMode(NeutralMode.Brake);
-    m_frontRight.setNeutralMode(NeutralMode.Brake);
-    m_middleLeft.setNeutralMode(NeutralMode.Brake);
-    m_middleRight.setNeutralMode(NeutralMode.Brake);
-    m_backLeft.setNeutralMode(NeutralMode.Brake);
-    m_backRight.setNeutralMode(NeutralMode.Brake);
+    m_frontLeft.setNeutralMode(NeutralMode.Coast);
+    m_frontRight.setNeutralMode(NeutralMode.Coast);
+    // m_middleLeft.setNeutralMode(NeutralMode.Brake);
+    // m_middleRight.setNeutralMode(NeutralMode.Brake);
+    m_backLeft.setNeutralMode(NeutralMode.Coast);
+    m_backRight.setNeutralMode(NeutralMode.Coast);
 
     m_shooterLeft.setNeutralMode(NeutralMode.Coast);
     m_shooterRight.setNeutralMode(NeutralMode.Coast);
 
     // invert motors
     m_shooterLeft.setInverted(true);
+    rightDriveMotors.setInverted(true);
 
     // start compressor
     compressor.setClosedLoopControl(true);
@@ -155,6 +163,10 @@ public class Robot extends TimedRobot {
     hopperSol.set(Value.kForward);
     climberSol1.set(Value.kReverse);
     climberSol2.set(Value.kReverse);
+
+    m_Climber1.setInverted(true);
+
+    // frontLeftSpeed.set(ControlMode.Follower, 5);
 
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
@@ -252,15 +264,34 @@ public class Robot extends TimedRobot {
     else{
       climberSol2.set(Value.kReverse);
     }
-    // turret left and right on driver bumpers
-    if(driver.getRawButton(RIGHT_BUMPER)){
+    if(operator.getRawButton(RIGHT_BUMPER)){
       m_TurretMotor.set(.1);
     }
-    else if(driver.getRawButton(LEFT_BUMPER)){
+    else if(operator.getRawButton(LEFT_BUMPER)){
       m_TurretMotor.set(-.1);
     }
     else {
       m_TurretMotor.set(0);
+    }
+
+    if(driver.getPOV() == DPadDown){
+      climberMotors.set(.6);
+      System.out.println("down");
+    }
+    else{
+      climberMotors.set(0);
+    }
+    if(driver.getRawAxis(LEFT_Y)  != 0){
+      leftDriveMotors.set(-driver.getRawAxis(LEFT_Y) / 2);
+    } else {
+      leftDriveMotors.set(0);
+      rightDriveMotors.set(0);
+    }
+    if(driver.getRawAxis(RIGHT_Y) != 0){
+      rightDriveMotors.set(-driver.getRawAxis(RIGHT_Y) / 2);
+    } else {
+      leftDriveMotors.set(0);
+      rightDriveMotors.set(0);
     }
   }
 
