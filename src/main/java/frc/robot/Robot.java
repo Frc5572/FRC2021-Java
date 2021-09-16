@@ -65,6 +65,7 @@ public class Robot extends TimedRobot {
   double v2;
   int PCM1 = 0;
   int PCM2 = 1;
+  double servoPos = 0;
 
 
   // initialize timer
@@ -80,8 +81,7 @@ public class Robot extends TimedRobot {
 
 
   //                         not right ?????????????????????????????????????????????????????????????
-  Servo leftServo = new Servo(0);
-  Servo rightServo = new Servo(1);
+  Servo leftServo = new Servo(1);
 
   // initialize  talon motors
   WPI_TalonSRX m_frontLeft = new WPI_TalonSRX(4);
@@ -127,6 +127,10 @@ public class Robot extends TimedRobot {
 
     m_shooterLeft.set(ControlMode.PercentOutput, 0);
     m_shooterRight.set(ControlMode.PercentOutput, 0);
+    
+
+    leftServo.set(0);
+    leftServo.setBounds(2.0, 1.8, 1.5, 1.2, 1.0);
 
     // set neutral mode
     m_frontLeft.setNeutralMode(NeutralMode.Brake);
@@ -202,14 +206,14 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
 
     // servo to .5 on driver.X
-    if(operator.getRawButton(X_BUTTON)){
-      leftServo.set(0.5);
-      rightServo.set(0.5);
-    } else {
-      leftServo.set(0);
-      rightServo.set(0);
-    }
-
+    // if(operator.getRawButton(X_BUTTON)){
+    //   leftServo.set(servoPos);
+    //   servoPos = servoPos + 0.01;
+    // } 
+    // else if (operator.getRawButton(Y_BUTTON)){
+    //   leftServo.set(servoPos);
+    //   servoPos = servoPos - 0.01;
+    // }
     // shooter on driver right trigger
     if(driver.getRawAxis(RIGHT_Z) > .4){
       m_shooterLeft.set(ControlMode.PercentOutput, .7);
