@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Compressor;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -51,10 +51,10 @@ public class Robot extends TimedRobot {
   final int BACK_BUTTON = 7;
   final int LEFT_STICK_BUTTON = 9;
   final int RIGHT_STICK_BUTTON = 10;
-  final int POVDown = 180;
-  final int POVUp = 0;
-  final int POVLeft = 270;
-  final int POVRight = 90;
+  final int DPadDown = 180;
+  final int DPadUp = 0;
+  final int DPadLeft = 270;
+  final int DPadRight = 90;
   // final int RIGHT_TRIGGER = 12;
 
 
@@ -92,6 +92,10 @@ public class Robot extends TimedRobot {
 
   // PID object
   PIDController pid = new PIDController(.0045, .0, 0, 100); 
+
+  CANSparkMax m_Climber1 = new CANSparkMax(16, MotorType.kBrushless);
+  CANSparkMax m_Climber2 = new CANSparkMax(15, MotorType.kBrushless);
+  SpeedControllerGroup climberMotors = new SpeedControllerGroup(m_Climber1, m_Climber2);
 
   //Neos
   CANSparkMax m_TurretMotor = new CANSparkMax(13, MotorType.kBrushless);
@@ -147,6 +151,8 @@ public class Robot extends TimedRobot {
     hopperSol.set(Value.kForward);
     climberSol1.set(Value.kReverse);
     climberSol2.set(Value.kReverse);
+
+    m_Climber1.setInverted(true);
 
     // frontLeftSpeed.set(ControlMode.Follower, 5);
 
@@ -242,14 +248,22 @@ public class Robot extends TimedRobot {
     else{
       climberSol2.set(Value.kReverse);
     }
-    if(driver.getRawButton(RIGHT_BUMPER)){
+    if(operator.getRawButton(RIGHT_BUMPER)){
       m_TurretMotor.set(.1);
     }
-    else if(driver.getRawButton(LEFT_BUMPER)){
+    else if(operator.getRawButton(LEFT_BUMPER)){
       m_TurretMotor.set(-.1);
     }
     else {
       m_TurretMotor.set(0);
+    }
+
+    if(driver.getPOV() == DPadDown){
+      climberMotors.set(.6);
+      System.out.println("down");
+    }
+    else{
+      climberMotors.set(0);
     }
     if(driver.getRawAxis(LEFT_Y)  != 0){
       leftDriveMotors.set(-driver.getRawAxis(LEFT_Y) / 2);
