@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import static java.lang.Math.abs;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -78,12 +76,14 @@ public class Robot extends TimedRobot {
   DoubleSolenoid hopperSol = new DoubleSolenoid(PCM1, 5, 2);
 
   // initialize motor names and ID
-  // WPI_TalonSRX m_frontLeft = new WPI_TalonSRX(4);
-  // WPI_TalonSRX m_frontRight = new WPI_TalonSRX(2);
+  WPI_TalonSRX m_frontLeft = new WPI_TalonSRX(4);
   // WPI_TalonSRX m_middleLeft = new WPI_TalonSRX(6);
+  WPI_TalonSRX m_backLeft = new WPI_TalonSRX(8);
+  SpeedControllerGroup leftDriveMotors = new SpeedControllerGroup(m_frontLeft, m_backLeft);
+  WPI_TalonSRX m_frontRight = new WPI_TalonSRX(3);
   // WPI_TalonSRX m_middleRight = new WPI_TalonSRX(3);
-  // WPI_TalonSRX m_backLeft = new WPI_TalonSRX(8);
-  // WPI_TalonSRX m_backRight = new WPI_TalonSRX(7);
+  WPI_TalonSRX m_backRight = new WPI_TalonSRX(2);
+  SpeedControllerGroup rightDriveMotors = new SpeedControllerGroup(m_frontRight, m_backRight);
 
   WPI_TalonSRX m_shooterLeft = new WPI_TalonSRX(12);
   WPI_TalonSRX m_shooterRight = new WPI_TalonSRX(14);
@@ -118,27 +118,28 @@ public class Robot extends TimedRobot {
     // SmartDashboard.putNumber("SetPoint", 0);
 
     // set motors to 0 at beginning
-    // m_frontLeft.set(ControlMode.PercentOutput, 0);
-    // m_frontRight.set(ControlMode.PercentOutput, 0);
+    m_frontLeft.set(ControlMode.PercentOutput, 0);
+    m_frontRight.set(ControlMode.PercentOutput, 0);
     // m_middleLeft.set(ControlMode.PercentOutput, 0);
     // m_middleRight.set(ControlMode.PercentOutput, 0);
-    // m_backLeft.set(ControlMode.PercentOutput, 0);
-    // m_backRight.set(ControlMode.PercentOutput, 0);
+    m_backLeft.set(ControlMode.PercentOutput, 0);
+    m_backRight.set(ControlMode.PercentOutput, 0);
 
     m_shooterLeft.set(ControlMode.PercentOutput, 0);
     m_shooterRight.set(ControlMode.PercentOutput, 0);
 
     // set neutral mode
-    // m_frontLeft.setNeutralMode(NeutralMode.Brake);
-    // m_frontRight.setNeutralMode(NeutralMode.Brake);
+    m_frontLeft.setNeutralMode(NeutralMode.Coast);
+    m_frontRight.setNeutralMode(NeutralMode.Coast);
     // m_middleLeft.setNeutralMode(NeutralMode.Brake);
     // m_middleRight.setNeutralMode(NeutralMode.Brake);
-    // m_backLeft.setNeutralMode(NeutralMode.Brake);
-    // m_backRight.setNeutralMode(NeutralMode.Brake);
+    m_backLeft.setNeutralMode(NeutralMode.Coast);
+    m_backRight.setNeutralMode(NeutralMode.Coast);
 
     // invert motors
     // ??????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????? left motor?
     m_shooterLeft.setInverted(true);
+    rightDriveMotors.setInverted(true);
 
     m_shooterLeft.setNeutralMode(NeutralMode.Coast);
     m_shooterRight.setNeutralMode(NeutralMode.Coast);
@@ -263,6 +264,18 @@ public class Robot extends TimedRobot {
     }
     else{
       climberMotors.set(0);
+    }
+    if(driver.getRawAxis(LEFT_Y)  != 0){
+      leftDriveMotors.set(-driver.getRawAxis(LEFT_Y) / 2);
+    } else {
+      leftDriveMotors.set(0);
+      rightDriveMotors.set(0);
+    }
+    if(driver.getRawAxis(RIGHT_Y) != 0){
+      rightDriveMotors.set(-driver.getRawAxis(RIGHT_Y) / 2);
+    } else {
+      leftDriveMotors.set(0);
+      rightDriveMotors.set(0);
     }
   }
 
