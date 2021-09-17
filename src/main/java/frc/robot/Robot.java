@@ -10,7 +10,8 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
-// import edu.wpi.cscore.UsbCamera;
+import edu.wpi.cscore.UsbCamera;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
@@ -67,7 +68,7 @@ public class Robot extends TimedRobot {
   Joystick operator = new Joystick(1);
 
   // initialize usb camera
-  // UsbCamera camera1 = new UsbCamera(camera1);
+  UsbCamera camera1 = new UsbCamera("UsbCamera0", 0);
   // camera1 = UsbCamera.startAutomaticCapture();
 
   /**
@@ -94,7 +95,7 @@ public class Robot extends TimedRobot {
     m_backRight.setNeutralMode(NeutralMode.Brake);
 
     // send usb camera feed to dashboard
-
+    camera1 = UsbCamera.startAutomaticCapture(0);
     
 
     // frontLeftSpeed.set(ControlMode.Follower, 5);
