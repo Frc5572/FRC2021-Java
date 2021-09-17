@@ -39,15 +39,17 @@ jobs:
           VALIDATE_ALL_CODEBASE: true
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FILTER_REGEX_INCLUDE: .*\.java
           
   create_release:
     name: Build
     runs-on: windows-2019
     steps:
       - uses: actions/checkout@v2
-      # - name: Install Toolchain
-      #   shell: cmd
-      #   run: ./gradlew installRoboRioToolchain
+      - uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin' # See 'Supported distributions' for available options
+          java-version: '11'
       - name: Build
         shell: cmd
         run: ./gradlew build
