@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import java.lang.Math;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -108,9 +106,6 @@ public class Robot extends TimedRobot {
   CANSparkMax m_Climber1 = new CANSparkMax(16, MotorType.kBrushless);
   CANSparkMax m_Climber2 = new CANSparkMax(15, MotorType.kBrushless);
   SpeedControllerGroup climberMotors = new SpeedControllerGroup(m_Climber1, m_Climber2);
-
-  //Neos
-  CANSparkMax m_TurretMotor = new CANSparkMax(13, MotorType.kBrushless);
 
   // controllers
   Joystick driver = new Joystick(0);
@@ -283,13 +278,13 @@ public class Robot extends TimedRobot {
     else{
       climberMotors.set(0);
     }
-    if(Math.abs(driver.getRawAxis(LEFT_Y)) > .2){
+    if(driver.getRawAxis(LEFT_Y)  != 0){
       leftDriveMotors.set(-driver.getRawAxis(LEFT_Y) / 2);
     } else {
       leftDriveMotors.set(0);
       rightDriveMotors.set(0);
     }
-    if(Math.abs(driver.getRawAxis(RIGHT_Y)) > .2){
+    if(driver.getRawAxis(RIGHT_Y) != 0){
       rightDriveMotors.set(-driver.getRawAxis(RIGHT_Y) / 2);
     } else {
       leftDriveMotors.set(0);
