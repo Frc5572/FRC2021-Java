@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import java.lang.Math;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -20,6 +18,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.Servo;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -64,11 +63,13 @@ public class Robot extends TimedRobot {
   double v2;
   int PCM1 = 0;
   int PCM2 = 1;
+  double servoPos = 0;
 
 
   // initialize timer
   Timer timer = new Timer();
 
+  // init compressor
   Compressor compressor = new Compressor();
 
   DoubleSolenoid intakeSol = new DoubleSolenoid(PCM1, 6, 1);
@@ -76,7 +77,11 @@ public class Robot extends TimedRobot {
   DoubleSolenoid climberSol1 = new DoubleSolenoid(PCM2, 4, 3);
   DoubleSolenoid hopperSol = new DoubleSolenoid(PCM1, 5, 2);
 
-  // initialize motor names and ID
+
+  //                         not right ?????????????????????????????????????????????????????????????
+  Servo leftServo = new Servo(1);
+
+  // initialize  talon motors
   WPI_TalonSRX m_frontLeft = new WPI_TalonSRX(4);
   // WPI_TalonSRX m_middleLeft = new WPI_TalonSRX(6);
   WPI_TalonSRX m_backLeft = new WPI_TalonSRX(8);
@@ -89,6 +94,10 @@ public class Robot extends TimedRobot {
   WPI_TalonSRX m_shooterLeft = new WPI_TalonSRX(12);
   WPI_TalonSRX m_shooterRight = new WPI_TalonSRX(14);
 
+  // initialize neo motors
+  CANSparkMax m_TurretMotor = new CANSparkMax(13, MotorType.kBrushless);
+
+  // init speed controller groups
   SpeedControllerGroup shooterMotors = new SpeedControllerGroup(m_shooterLeft, m_shooterRight);
 
   // PID object
@@ -98,17 +107,11 @@ public class Robot extends TimedRobot {
   CANSparkMax m_Climber2 = new CANSparkMax(15, MotorType.kBrushless);
   SpeedControllerGroup climberMotors = new SpeedControllerGroup(m_Climber1, m_Climber2);
 
-  //Neos
-  CANSparkMax m_TurretMotor = new CANSparkMax(13, MotorType.kBrushless);
-
   // controllers
   Joystick driver = new Joystick(0);
   Joystick operator = new Joystick(1);
 
-  /**
-   * This function is run when the robot is first started up and should be used for any
-   * initialization code.
-   */
+
   @Override
   public void robotInit() {
 
@@ -128,6 +131,10 @@ public class Robot extends TimedRobot {
 
     m_shooterLeft.set(ControlMode.PercentOutput, 0);
     m_shooterRight.set(ControlMode.PercentOutput, 0);
+    
+
+    leftServo.set(0);
+    leftServo.setBounds(2.0, 1.8, 1.5, 1.2, 1.0);
 
     // set neutral mode
     m_frontLeft.setNeutralMode(NeutralMode.Coast);
@@ -137,13 +144,14 @@ public class Robot extends TimedRobot {
     m_backLeft.setNeutralMode(NeutralMode.Coast);
     m_backRight.setNeutralMode(NeutralMode.Coast);
 
+    m_shooterLeft.setNeutralMode(NeutralMode.Coast);
+    m_shooterRight.setNeutralMode(NeutralMode.Coast);
+
     // invert motors
-    // ??????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????? left motor?
     m_shooterLeft.setInverted(true);
     rightDriveMotors.setInverted(true);
 
-    m_shooterLeft.setNeutralMode(NeutralMode.Coast);
-    m_shooterRight.setNeutralMode(NeutralMode.Coast);
+    // start compressor
     compressor.setClosedLoopControl(true);
     compressor.start();
 
@@ -162,20 +170,16 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData("Auto choices", m_chooser);
   }
 
-  /**
-   * This function is called every robot packet, no matter the mode. Use this for items like
-   * diagnostics that you want ran during disabled, autonomous, teleoperated and test.
-   *
-   * <p>This runs after the mode specific periodic functions, but before LiveWindow and
-   * SmartDashboard integrated updating.
-   */
   @Override
   public void robotPeriodic() {
+    // assign variable to shooter motor speed
     double s1 = m_shooterLeft.getSelectedSensorVelocity();
     double s2 = m_shooterRight.getSelectedSensorVelocity();
   
+    // average speed between two shooter motors
     double speed = (s1 + s2) / 2;
 
+    // output shooter motor speed to smartdashboard
     SmartDashboard.putNumber("RPM", speed);
   }
 
@@ -186,12 +190,11 @@ public class Robot extends TimedRobot {
     timer.start();
 
     m_autoSelected = m_chooser.getSelected();
-    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
+    m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
 
   }
 
-  /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
     switch (m_autoSelected) {
@@ -205,13 +208,22 @@ public class Robot extends TimedRobot {
     }
   }
 
-  /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {}
 
-  /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+
+    // servo to .5 on driver.X
+    // if(operator.getRawButton(X_BUTTON)){
+    //   leftServo.set(servoPos);
+    //   servoPos = servoPos + 0.01;
+    // } 
+    // else if (operator.getRawButton(Y_BUTTON)){
+    //   leftServo.set(servoPos);
+    //   servoPos = servoPos - 0.01;
+    // }
+    // shooter on driver right trigger
     if(driver.getRawAxis(RIGHT_Z) > .4){
       m_shooterLeft.set(ControlMode.PercentOutput, .7);
       m_shooterRight.set(ControlMode.PercentOutput, .7);
@@ -266,13 +278,13 @@ public class Robot extends TimedRobot {
     else{
       climberMotors.set(0);
     }
-    if(Math.abs(driver.getRawAxis(LEFT_Y)) > .2){
+    if(driver.getRawAxis(LEFT_Y)  != 0){
       leftDriveMotors.set(-driver.getRawAxis(LEFT_Y) / 2);
     } else {
       leftDriveMotors.set(0);
       rightDriveMotors.set(0);
     }
-    if(Math.abs(driver.getRawAxis(RIGHT_Y)) > .2){
+    if(driver.getRawAxis(RIGHT_Y) != 0){
       rightDriveMotors.set(-driver.getRawAxis(RIGHT_Y) / 2);
     } else {
       leftDriveMotors.set(0);
