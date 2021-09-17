@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.lang.Math;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -264,13 +266,13 @@ public class Robot extends TimedRobot {
     else{
       climberMotors.set(0);
     }
-    if(driver.getRawAxis(LEFT_Y)  != 0){
+    if(Math.abs(driver.getRawAxis(LEFT_Y)) > .2){
       leftDriveMotors.set(-driver.getRawAxis(LEFT_Y) / 2);
     } else {
       leftDriveMotors.set(0);
       rightDriveMotors.set(0);
     }
-    if(driver.getRawAxis(RIGHT_Y) != 0){
+    if(Math.abs(driver.getRawAxis(RIGHT_Y)) > .2){
       rightDriveMotors.set(-driver.getRawAxis(RIGHT_Y) / 2);
     } else {
       leftDriveMotors.set(0);
