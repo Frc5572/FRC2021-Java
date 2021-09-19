@@ -19,6 +19,8 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.Compressor;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -56,6 +58,15 @@ public class Robot extends TimedRobot {
   final int DPadUp = 0;
   final int DPadLeft = 270;
   final int DPadRight = 90;
+
+  float limelightAngle;
+  float subHeight;
+  float distance;
+  float angle;
+  double eticks = 2048 * 9.2;
+  double circum = 18.84;
+  double wantToMove = 14 * 13; //feet to inches
+  double ticks = wantToMove * (eticks / circum);
   // final int RIGHT_TRIGGER = 12;
 
 
@@ -146,6 +157,10 @@ public class Robot extends TimedRobot {
     m_shooterRight.setNeutralMode(NeutralMode.Coast);
     compressor.setClosedLoopControl(true);
     compressor.start();
+
+    // NetworkTableInstance table = NetworkTableInstance.getDefault()
+    NetworkTableInstance table = NetworkTableInstance.getDefault().getTable("limelight");
+    table.putNumber("led mode", 1);
 
     // set solenoids to start position
     intakeSol.set(Value.kForward);
