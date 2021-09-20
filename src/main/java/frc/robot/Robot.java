@@ -204,13 +204,11 @@ public class Robot extends TimedRobot {
     //   servoPos = servoPos - 0.01;
     // }
     // shooter on driver right trigger
-    // if(driver.getRawAxis(RIGHT_Z) > .4){
-    //   m_shooterLeft.set(ControlMode.PercentOutput, .7);
-    //   m_shooterRight.set(ControlMode.PercentOutput, .7);
-    // } else {
-    //   m_shooterLeft.set(ControlMode.PercentOutput, 0);
-    //   m_shooterRight.set(ControlMode.PercentOutput, 0);
-    // }
+    if(driver.RT() > .4){
+      shooterMotors.set(.7);
+    } else {
+      shooterMotors.set(0);
+    }
     // intake on B
     if(driver.B()){
       intakeSol.set(Value.kReverse);
@@ -262,12 +260,10 @@ public class Robot extends TimedRobot {
       leftDriveMotors.set(-driver.L() / 2);
     } else {
       leftDriveMotors.set(0);
-      rightDriveMotors.set(0);
     }
     if(Math.abs(driver.R()) > .2){
       rightDriveMotors.set(-driver.R() / 2);
     } else {
-      leftDriveMotors.set(0);
       rightDriveMotors.set(0);
     }
   }
