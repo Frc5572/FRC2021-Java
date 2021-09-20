@@ -80,8 +80,9 @@ public class Robot extends TimedRobot {
   // init speed controller groups
   SpeedControllerGroup shooterMotors = new SpeedControllerGroup(m_shooterLeft, m_shooterRight);
 
+  WPI_TalonSRX m_IntakeMotors = new WPI_TalonSRX(11);
   // PID object
-  PIDController pid = new PIDController(.0045, .0, 0, 100); 
+  PIDController pid = new PIDController(.0045, .0, 0, 100);
 
   CANSparkMax m_Climber1 = new CANSparkMax(16, MotorType.kBrushless);
   CANSparkMax m_Climber2 = new CANSparkMax(15, MotorType.kBrushless);
@@ -116,6 +117,8 @@ public class Robot extends TimedRobot {
     leftServo.set(0);
     leftServo.setBounds(2.0, 1.8, 1.5, 1.2, 1.0);
 
+    m_IntakeMotors.set(ControlMode.PercentOutput, 0);
+
     // set neutral mode
     m_frontLeft.setNeutralMode(NeutralMode.Coast);
     m_frontRight.setNeutralMode(NeutralMode.Coast);
@@ -135,6 +138,7 @@ public class Robot extends TimedRobot {
     compressor.setClosedLoopControl(true);
     compressor.start();
 
+    m_IntakeMotors.setNeutralMode(NeutralMode.Coast);
     // set solenoids to start position
     intakeSol.set(Value.kForward);
     hopperSol.set(Value.kForward);
@@ -212,9 +216,11 @@ public class Robot extends TimedRobot {
     // intake on B
     if(driver.B()){
       intakeSol.set(Value.kReverse);
+      m_IntakeMotors.set(ControlMode.PercentOutput, .5);
     }
     else{
       intakeSol.set(Value.kForward);
+      m_IntakeMotors.set(ControlMode.PercentOutput, 0);
     }
     // hopper on A
     if(driver.A()){
@@ -223,11 +229,13 @@ public class Robot extends TimedRobot {
     else{
       hopperSol.set(Value.kForward);
     }
+    
     // climber 1 on X
     if(driver.X()){
       climberSol1.set(Value.kForward);
       System.out.println("Pressed X");
     }
+    
     else{
       climberSol1.set(Value.kReverse);
     }
