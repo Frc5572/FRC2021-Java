@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 
 
 /**
@@ -97,11 +98,13 @@ public class Robot extends TimedRobot {
     m_backLeft.setNeutralMode(NeutralMode.Brake);
     m_backRight.setNeutralMode(NeutralMode.Brake);
 
+    camera1 = CameraServer.getInstance().startAutomaticCapture(0);
+    cameraSelection = NetworkTableInstance.getDefault().getTable("").getEntry("CameraSelection");
 
-    camera1 = CameraServer.getInstance;
-    // ????????????????????????????????????????????????????????????????????????????????????????????????????how do they assign usb camera object to another class?
-    // cameraSelection = nt::NetworkTableInstance::GetDefault().GetTable("")->GetEntry("CameraSelection");
-    
+    NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+      
+
+    // NetworkTableInstance.GetDefault().GetTable("limelight").PutNumber("ledMode", 3);    
 
     // frontLeftSpeed.set(ControlMode.Follower, 5);
 
