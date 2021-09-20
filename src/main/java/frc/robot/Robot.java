@@ -92,7 +92,7 @@ public class Robot extends TimedRobot {
 
   WPI_TalonSRX m_IntakeMotors = new WPI_TalonSRX(11);
   // PID object
-  PIDController pid = new PIDController(.0045, .0, 0, 100); 
+  PIDController pid = new PIDController(.0045, .0, 0, 100);
 
   CANSparkMax m_Climber1 = new CANSparkMax(16, MotorType.kBrushless);
   CANSparkMax m_Climber2 = new CANSparkMax(15, MotorType.kBrushless);
@@ -129,6 +129,8 @@ public class Robot extends TimedRobot {
     m_shooterLeft.set(ControlMode.PercentOutput, 0);
     m_shooterRight.set(ControlMode.PercentOutput, 0);
 
+    m_IntakeMotors.set(ControlMode.PercentOutput, 0);
+
     // set neutral mode
     m_frontLeft.setNeutralMode(NeutralMode.Coast);
     m_frontRight.setNeutralMode(NeutralMode.Coast);
@@ -147,6 +149,7 @@ public class Robot extends TimedRobot {
     compressor.setClosedLoopControl(true);
     compressor.start();
 
+    m_IntakeMotors.setNeutralMode(NeutralMode.Coast);
     // set solenoids to start position
     intakeSol.set(Value.kForward);
     hopperSol.set(Value.kForward);
@@ -226,6 +229,7 @@ public class Robot extends TimedRobot {
     else{
       intakeSol.set(Value.kForward);
     }
+    
     // hopper on A
     if(driver.getRawButton(A_BUTTON)){
       hopperSol.set(Value.kReverse);
@@ -233,6 +237,7 @@ public class Robot extends TimedRobot {
     else{
       hopperSol.set(Value.kForward);
     }
+    
     // climber 1 on X
     if(driver.getRawButton(X_BUTTON)){
       climberSol1.set(Value.kForward);
@@ -253,11 +258,10 @@ public class Robot extends TimedRobot {
 
     //Intake on B
     if(operator.getRawButton(B_BUTTON)){
-      //m_IntakeMotors.set(.5);
-      System.out.println("Hi");
+      m_IntakeMotors.set(ControlMode.PercentOutput, .5);
      }
     else{
-      m_IntakeMotors.set(0);
+      m_IntakeMotors.set(ControlMode.PercentOutput, 0);
     }
 
     //Turret bumpers
