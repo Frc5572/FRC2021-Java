@@ -101,7 +101,7 @@ public class Robot extends TimedRobot {
     m_backRight.setNeutralMode(NeutralMode.Brake);
 
     camera1 = CameraServer.getInstance().startAutomaticCapture(0);
-    cameraSelection = NetworkTableInstance.getDefault().getTable("").getEntry("CameraSelection");
+    // cameraSelection = NetworkTableInstance.getDefault().getTable("").getEntry("CameraSelection");
 
     // NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
 
