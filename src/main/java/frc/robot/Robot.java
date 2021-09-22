@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.lang.Math;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -11,7 +13,6 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -41,27 +42,6 @@ public class Robot extends TimedRobot {
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
   
   // create constants
-  final int LEFT_Z = 2;
-  final int LEFT_X = 0;
-  final int LEFT_Y = 1;
-  final int RIGHT_Z = 3;
-  final int RIGHT_X = 4;
-  final int RIGHT_Y = 5;
-  final int LEFT_BUMPER = 5;
-  final int RIGHT_BUMPER = 6;
-  final int X_BUTTON = 3;
-  final int Y_BUTTON = 4;
-  final int B_BUTTON = 2;
-  final int A_BUTTON = 1;
-  final int START_BUTTON = 8;
-  final int BACK_BUTTON = 7;
-  final int LEFT_STICK_BUTTON = 9;
-  final int RIGHT_STICK_BUTTON = 10;
-  final int DPadDown = 180;
-  final int DPadUp = 0;
-  final int DPadLeft = 270;
-  final int DPadRight = 90;
-  // final int RIGHT_TRIGGER = 12;
 
 
   // public var for shooter PID
@@ -106,16 +86,17 @@ public class Robot extends TimedRobot {
   // init speed controller groups
   SpeedControllerGroup shooterMotors = new SpeedControllerGroup(m_shooterLeft, m_shooterRight);
 
+  WPI_TalonSRX m_IntakeMotors = new WPI_TalonSRX(11);
   // PID object
-  PIDController pid = new PIDController(.0045, .0, 0, 100); 
+  PIDController pid = new PIDController(.0045, .0, 0, 100);
 
   CANSparkMax m_Climber1 = new CANSparkMax(16, MotorType.kBrushless);
   CANSparkMax m_Climber2 = new CANSparkMax(15, MotorType.kBrushless);
   SpeedControllerGroup climberMotors = new SpeedControllerGroup(m_Climber1, m_Climber2);
 
   // controllers
-  Joystick driver = new Joystick(0);
-  Joystick operator = new Joystick(1);
+  Controller driver = new Controller(0);
+  Controller operator = new Controller(1);
 
   
 
@@ -153,6 +134,8 @@ public class Robot extends TimedRobot {
     leftServo.set(0);
     leftServo.setBounds(2.0, 1.8, 1.5, 1.2, 1.0);
 
+    m_IntakeMotors.set(ControlMode.PercentOutput, 0);
+
     // set neutral mode
     m_frontLeft.setNeutralMode(NeutralMode.Coast);
     m_frontRight.setNeutralMode(NeutralMode.Coast);
@@ -179,6 +162,7 @@ public class Robot extends TimedRobot {
     compressor.setClosedLoopControl(true);
     compressor.start();
 
+    m_IntakeMotors.setNeutralMode(NeutralMode.Coast);
     // set solenoids to start position
     intakeSol.set(Value.kForward);
     hopperSol.set(Value.kForward);
@@ -248,70 +232,70 @@ public class Robot extends TimedRobot {
     //   servoPos = servoPos - 0.01;
     // }
     // shooter on driver right trigger
-    if(driver.getRawAxis(RIGHT_Z) > .4){
-      m_shooterLeft.set(ControlMode.PercentOutput, .7);
-      m_shooterRight.set(ControlMode.PercentOutput, .7);
+    if(driver.RT() > .4){
+      shooterMotors.set(.7);
     } else {
-      m_shooterLeft.set(ControlMode.PercentOutput, 0);
-      m_shooterRight.set(ControlMode.PercentOutput, 0);
+      shooterMotors.set(0);
     }
     // intake on B
-    if(driver.getRawButton(B_BUTTON)){
+    if(driver.B()){
       intakeSol.set(Value.kReverse);
+      m_IntakeMotors.set(ControlMode.PercentOutput, .5);
     }
     else{
       intakeSol.set(Value.kForward);
+      m_IntakeMotors.set(ControlMode.PercentOutput, 0);
     }
     // hopper on A
-    if(driver.getRawButton(A_BUTTON)){
+    if(driver.A()){
       hopperSol.set(Value.kReverse);
     }
     else{
       hopperSol.set(Value.kForward);
     }
+    
     // climber 1 on X
-    if(driver.getRawButton(X_BUTTON)){
+    if(driver.X()){
       climberSol1.set(Value.kForward);
       System.out.println("Pressed X");
     }
+    
     else{
       climberSol1.set(Value.kReverse);
     }
     // climber 2 on Y
-    if(driver.getRawButton(Y_BUTTON)){
+    if(driver.Y()){
       climberSol2.set(Value.kForward);
       System.out.println("Pressed Y");
     }
     else{
       climberSol2.set(Value.kReverse);
     }
-    if(operator.getRawButton(RIGHT_BUMPER)){
+    if(operator.RB()){
       m_TurretMotor.set(.1);
     }
-    else if(operator.getRawButton(LEFT_BUMPER)){
+    else if(operator.LB()){
       m_TurretMotor.set(-.1);
     }
     else {
       m_TurretMotor.set(0);
     }
 
-    if(driver.getPOV() == DPadDown){
+    if(driver.POVDown()){
       climberMotors.set(.6);
       System.out.println("down");
     }
     else{
       climberMotors.set(0);
     }
-    if(driver.getRawAxis(LEFT_Y)  != 0){
-      leftDriveMotors.set(-driver.getRawAxis(LEFT_Y) / 2);
+    if(Math.abs(driver.L()) > .2){
+      leftDriveMotors.set(-driver.L() / 2);
     } else {
       leftDriveMotors.set(0);
-      rightDriveMotors.set(0);
     }
-    if(driver.getRawAxis(RIGHT_Y) != 0){
-      rightDriveMotors.set(-driver.getRawAxis(RIGHT_Y) / 2);
+    if(Math.abs(driver.R()) > .2){
+      rightDriveMotors.set(-driver.R() / 2);
     } else {
-      leftDriveMotors.set(0);
       rightDriveMotors.set(0);
     }
   }
