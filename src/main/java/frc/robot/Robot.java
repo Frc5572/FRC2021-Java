@@ -4,23 +4,29 @@
 
 package frc.robot;
 
-import static java.lang.Math.abs;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.controller.PIDController;
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
+import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.Servo;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -33,6 +39,8 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  
+  // create constants
   final int LEFT_Z = 2;
   final int LEFT_X = 0;
   final int LEFT_Y = 1;
@@ -49,22 +57,61 @@ public class Robot extends TimedRobot {
   final int BACK_BUTTON = 7;
   final int LEFT_STICK_BUTTON = 9;
   final int RIGHT_STICK_BUTTON = 10;
-  final int POVDown = 180;
-  final int POVUp = 0;
-  final int POVLeft = 270;
-  final int POVRight = 90;
+  final int DPadDown = 180;
+  final int DPadUp = 0;
+  final int DPadLeft = 270;
+  final int DPadRight = 90;
+  // final int RIGHT_TRIGGER = 12;
 
 
-  //initialize timer
+  // public var for shooter PID
+  double v1;
+  double v2;
+  int PCM1 = 0;
+  int PCM2 = 1;
+  double servoPos = 0;
+
+
+  // initialize timer
   Timer timer = new Timer();
 
-  // initialize motor names and ID
-  TalonSRX m_frontLeft = new TalonSRX(4);
-  TalonSRX m_frontRight = new TalonSRX(2);
-  TalonSRX m_middleLeft = new TalonSRX(6);
-  TalonSRX m_middleRight = new TalonSRX(3);
-  TalonSRX m_backLeft = new TalonSRX(8);
-  TalonSRX m_backRight = new TalonSRX(7);
+  // init compressor
+  Compressor compressor = new Compressor();
+
+  DoubleSolenoid intakeSol = new DoubleSolenoid(PCM1, 6, 1);
+  DoubleSolenoid climberSol2 = new DoubleSolenoid(PCM1, 7, 0);
+  DoubleSolenoid climberSol1 = new DoubleSolenoid(PCM2, 4, 3);
+  DoubleSolenoid hopperSol = new DoubleSolenoid(PCM1, 5, 2);
+
+
+  //                         not right ?????????????????????????????????????????????????????????????
+  Servo leftServo = new Servo(1);
+
+  // initialize  talon motors
+  WPI_TalonSRX m_frontLeft = new WPI_TalonSRX(4);
+  // WPI_TalonSRX m_middleLeft = new WPI_TalonSRX(6);
+  WPI_TalonSRX m_backLeft = new WPI_TalonSRX(8);
+  SpeedControllerGroup leftDriveMotors = new SpeedControllerGroup(m_frontLeft, m_backLeft);
+  WPI_TalonSRX m_frontRight = new WPI_TalonSRX(3);
+  // WPI_TalonSRX m_middleRight = new WPI_TalonSRX(3);
+  WPI_TalonSRX m_backRight = new WPI_TalonSRX(2);
+  SpeedControllerGroup rightDriveMotors = new SpeedControllerGroup(m_frontRight, m_backRight);
+
+  WPI_TalonSRX m_shooterLeft = new WPI_TalonSRX(12);
+  WPI_TalonSRX m_shooterRight = new WPI_TalonSRX(14);
+
+  // initialize neo motors
+  CANSparkMax m_TurretMotor = new CANSparkMax(13, MotorType.kBrushless);
+
+  // init speed controller groups
+  SpeedControllerGroup shooterMotors = new SpeedControllerGroup(m_shooterLeft, m_shooterRight);
+
+  // PID object
+  PIDController pid = new PIDController(.0045, .0, 0, 100); 
+
+  CANSparkMax m_Climber1 = new CANSparkMax(16, MotorType.kBrushless);
+  CANSparkMax m_Climber2 = new CANSparkMax(15, MotorType.kBrushless);
+  SpeedControllerGroup climberMotors = new SpeedControllerGroup(m_Climber1, m_Climber2);
 
   // controllers
   Joystick driver = new Joystick(0);
@@ -81,24 +128,38 @@ public class Robot extends TimedRobot {
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
    */
+
   @Override
   public void robotInit() {
+
+    // smart dashboard put PID values
+    // SmartDashboard.putNumber("P Gain", 0);
+    // SmartDashboard.putNumber("I Gain", 0);
+    // SmartDashboard.putNumber("D Gain", 0);
+    // SmartDashboard.putNumber("SetPoint", 0);
 
     // set motors to 0 at beginning
     m_frontLeft.set(ControlMode.PercentOutput, 0);
     m_frontRight.set(ControlMode.PercentOutput, 0);
-    m_middleLeft.set(ControlMode.PercentOutput, 0);
-    m_middleRight.set(ControlMode.PercentOutput, 0);
+    // m_middleLeft.set(ControlMode.PercentOutput, 0);
+    // m_middleRight.set(ControlMode.PercentOutput, 0);
     m_backLeft.set(ControlMode.PercentOutput, 0);
     m_backRight.set(ControlMode.PercentOutput, 0);
 
+    m_shooterLeft.set(ControlMode.PercentOutput, 0);
+    m_shooterRight.set(ControlMode.PercentOutput, 0);
+    
+
+    leftServo.set(0);
+    leftServo.setBounds(2.0, 1.8, 1.5, 1.2, 1.0);
+
     // set neutral mode
-    m_frontLeft.setNeutralMode(NeutralMode.Brake);
-    m_frontRight.setNeutralMode(NeutralMode.Brake);
-    m_middleLeft.setNeutralMode(NeutralMode.Brake);
-    m_middleRight.setNeutralMode(NeutralMode.Brake);
-    m_backLeft.setNeutralMode(NeutralMode.Brake);
-    m_backRight.setNeutralMode(NeutralMode.Brake);
+    m_frontLeft.setNeutralMode(NeutralMode.Coast);
+    m_frontRight.setNeutralMode(NeutralMode.Coast);
+    // m_middleLeft.setNeutralMode(NeutralMode.Brake);
+    // m_middleRight.setNeutralMode(NeutralMode.Brake);
+    m_backLeft.setNeutralMode(NeutralMode.Coast);
+    m_backRight.setNeutralMode(NeutralMode.Coast);
 
     camera1 = CameraServer.getInstance().startAutomaticCapture(0);
     // cameraSelection = NetworkTableInstance.getDefault().getTable("").getEntry("CameraSelection");
@@ -107,6 +168,24 @@ public class Robot extends TimedRobot {
 
 
     // NetworkTableInstance.GetDefault().GetTable("limelight").PutNumber("ledMode", 3);    
+    m_shooterLeft.setNeutralMode(NeutralMode.Coast);
+    m_shooterRight.setNeutralMode(NeutralMode.Coast);
+
+    // invert motors
+    m_shooterLeft.setInverted(true);
+    rightDriveMotors.setInverted(true);
+
+    // start compressor
+    compressor.setClosedLoopControl(true);
+    compressor.start();
+
+    // set solenoids to start position
+    intakeSol.set(Value.kForward);
+    hopperSol.set(Value.kForward);
+    climberSol1.set(Value.kReverse);
+    climberSol2.set(Value.kReverse);
+
+    m_Climber1.setInverted(true);
 
     // frontLeftSpeed.set(ControlMode.Follower, 5);
 
@@ -115,157 +194,17 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData("Auto choices", m_chooser);
   }
 
-  /**
-   * This function is called every robot packet, no matter the mode. Use this for items like
-   * diagnostics that you want ran during disabled, autonomous, teleoperated and test.
-   *
-   * <p>This runs after the mode specific periodic functions, but before LiveWindow and
-   * SmartDashboard integrated updating.
-   */
   @Override
   public void robotPeriodic() {
-    // if(abs(driver.getRawAxis(LEFT_X)) > 0.04){
-    //   System.out.println(driver.getRawAxis(LEFT_X));
-    // }
-    // if(abs(driver.getRawAxis(LEFT_Y)) > 0.04){
-    //   System.out.println(driver.getRawAxis(LEFT_Y));
-    // }
-    // if(abs(driver.getRawAxis(LEFT_Y)) > 0.04){
-    //   System.out.println(driver.getRawAxis(LEFT_Y));
-    // }
-    // if(abs(driver.getRawAxis(RIGHT_X)) > 0.04){
-    //   System.out.println(driver.getRawAxis(RIGHT_X));
-    // }
-    // if(abs(driver.getRawAxis(RIGHT_Y)) > 0.04){
-    //   System.out.println(driver.getRawAxis(RIGHT_Y));
-    // }
-    // if(abs(driver.getRawAxis(RIGHT_Z)) > 0.04){
-    //   System.out.println(driver.getRawAxis(RIGHT_Z));
-    // }
-    // if(abs(driver.getRawAxis(LEFT_Z)) > 0.04){
-    //   System.out.println(driver.getRawAxis(LEFT_Z));
-    // }
-    if(abs(driver.getRawAxis(LEFT_X)) > 0.04){
-      System.out.println("LEFT_X");
-    }
-    if(abs(driver.getRawAxis(LEFT_Y)) > 0.04){
-      System.out.println("LEFT_Y");
-    }
-    if(abs(driver.getRawAxis(LEFT_Z)) > 0.04){
-      System.out.println("LEFT_Z");
-    }
-    if(abs(driver.getRawAxis(RIGHT_X)) > 0.04){
-      System.out.println("RIGHT_X");
-    }
-    if(abs(driver.getRawAxis(RIGHT_Y)) > 0.04){
-      System.out.println("RIGHT_Y");
-    }
-    if(abs(driver.getRawAxis(RIGHT_Z)) > 0.04){
-      System.out.println("RIGHT_Z");
-    }
-    if(driver.getRawButton(RIGHT_BUMPER)){
-      System.out.println("RB");
-    }
-    if(driver.getRawButton(LEFT_BUMPER)){
-      System.out.println("LB");
-    }
-    if(driver.getRawButton(X_BUTTON)){
-      System.out.println("X");
-    }
-    if(driver.getRawButton(Y_BUTTON)){
-      System.out.println("Y");
-    }
-    if(driver.getRawButton(A_BUTTON)){
-      System.out.println("A");
-    }
-    if(driver.getRawButton(B_BUTTON)){
-      System.out.println("B");
-    }
-    if(driver.getRawButton(START_BUTTON)){
-      System.out.println("START");
-    }
-    if(driver.getRawButton(BACK_BUTTON)){
-      System.out.println("BACK");
-    }
-    if(driver.getRawButton(LEFT_STICK_BUTTON)){
-      System.out.println("LSTICK");
-    }
-    if(driver.getRawButton(RIGHT_STICK_BUTTON)){
-      System.out.println("RSTICK");
-    }
-    if(driver.getPOV() == POVDown){
-      System.out.println("POVDown");
-    }
-    if(driver.getPOV() == POVUp){
-      System.out.println("POVUp");
-    }
-    if(driver.getPOV() == POVLeft){
-      System.out.println("POVLeft");
-    }
-    if(driver.getPOV() == POVRight){
-      System.out.println("POVRight");
-    }
-    // operator buttons
-    if(abs(operator.getRawAxis(LEFT_X)) > 0.04){
-      System.out.println("LEFT_X");
-    }
-    if(abs(operator.getRawAxis(LEFT_Y)) > 0.04){
-      System.out.println("LEFT_Y");
-    }
-    if(abs(operator.getRawAxis(LEFT_Z)) > 0.04){
-      System.out.println("LEFT_Z");
-    }
-    if(abs(operator.getRawAxis(RIGHT_X)) > 0.04){
-      System.out.println("RIGHT_X");
-    }
-    if(abs(operator.getRawAxis(RIGHT_Y)) > 0.04){
-      System.out.println("RIGHT_Y");
-    }
-    if(abs(operator.getRawAxis(RIGHT_Z)) > 0.04){
-      System.out.println("RIGHT_Z");
-    }
-    if(operator.getRawButton(RIGHT_BUMPER)){
-      System.out.println("RB");
-    }
-    if(operator.getRawButton(LEFT_BUMPER)){
-      System.out.println("LB");
-    }
-    if(operator.getRawButton(X_BUTTON)){
-      System.out.println("X");
-    }
-    if(operator.getRawButton(Y_BUTTON)){
-      System.out.println("Y");
-    }
-    if(operator.getRawButton(A_BUTTON)){
-      System.out.println("A");
-    }
-    if(operator.getRawButton(B_BUTTON)){
-      System.out.println("B");
-    }
-    if(operator.getRawButton(START_BUTTON)){
-      System.out.println("START");
-    }
-    if(operator.getRawButton(BACK_BUTTON)){
-      System.out.println("BACK");
-    }
-    if(operator.getRawButton(LEFT_STICK_BUTTON)){
-      System.out.println("LSTICK");
-    }
-    if(operator.getRawButton(RIGHT_STICK_BUTTON)){
-      System.out.println("RSTICK");
-    }
-    if(operator.getPOV() == POVDown){
-      System.out.println("POVDown");
-    }
-    if(operator.getPOV() == POVUp){
-      System.out.println("POVUp");
-    }
-    if(operator.getPOV() == POVLeft){
-      System.out.println("POVLeft");
-    }
-    if(operator.getPOV() == POVRight){
-      System.out.println("POVRight");
-    }
+    // assign variable to shooter motor speed
+    double s1 = m_shooterLeft.getSelectedSensorVelocity();
+    double s2 = m_shooterRight.getSelectedSensorVelocity();
+  
+    // average speed between two shooter motors
+    double speed = (s1 + s2) / 2;
+
+    // output shooter motor speed to smartdashboard
+    SmartDashboard.putNumber("RPM", speed);
   }
 
   @Override
@@ -275,12 +214,11 @@ public class Robot extends TimedRobot {
     timer.start();
 
     m_autoSelected = m_chooser.getSelected();
-    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
+    m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
 
   }
 
-  /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
     switch (m_autoSelected) {
@@ -294,13 +232,88 @@ public class Robot extends TimedRobot {
     }
   }
 
-  /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {}
 
-  /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+
+    // servo to .5 on driver.X
+    // if(operator.getRawButton(X_BUTTON)){
+    //   leftServo.set(servoPos);
+    //   servoPos = servoPos + 0.01;
+    // } 
+    // else if (operator.getRawButton(Y_BUTTON)){
+    //   leftServo.set(servoPos);
+    //   servoPos = servoPos - 0.01;
+    // }
+    // shooter on driver right trigger
+    if(driver.getRawAxis(RIGHT_Z) > .4){
+      m_shooterLeft.set(ControlMode.PercentOutput, .7);
+      m_shooterRight.set(ControlMode.PercentOutput, .7);
+    } else {
+      m_shooterLeft.set(ControlMode.PercentOutput, 0);
+      m_shooterRight.set(ControlMode.PercentOutput, 0);
+    }
+    // intake on B
+    if(driver.getRawButton(B_BUTTON)){
+      intakeSol.set(Value.kReverse);
+    }
+    else{
+      intakeSol.set(Value.kForward);
+    }
+    // hopper on A
+    if(driver.getRawButton(A_BUTTON)){
+      hopperSol.set(Value.kReverse);
+    }
+    else{
+      hopperSol.set(Value.kForward);
+    }
+    // climber 1 on X
+    if(driver.getRawButton(X_BUTTON)){
+      climberSol1.set(Value.kForward);
+      System.out.println("Pressed X");
+    }
+    else{
+      climberSol1.set(Value.kReverse);
+    }
+    // climber 2 on Y
+    if(driver.getRawButton(Y_BUTTON)){
+      climberSol2.set(Value.kForward);
+      System.out.println("Pressed Y");
+    }
+    else{
+      climberSol2.set(Value.kReverse);
+    }
+    if(operator.getRawButton(RIGHT_BUMPER)){
+      m_TurretMotor.set(.1);
+    }
+    else if(operator.getRawButton(LEFT_BUMPER)){
+      m_TurretMotor.set(-.1);
+    }
+    else {
+      m_TurretMotor.set(0);
+    }
+
+    if(driver.getPOV() == DPadDown){
+      climberMotors.set(.6);
+      System.out.println("down");
+    }
+    else{
+      climberMotors.set(0);
+    }
+    if(driver.getRawAxis(LEFT_Y)  != 0){
+      leftDriveMotors.set(-driver.getRawAxis(LEFT_Y) / 2);
+    } else {
+      leftDriveMotors.set(0);
+      rightDriveMotors.set(0);
+    }
+    if(driver.getRawAxis(RIGHT_Y) != 0){
+      rightDriveMotors.set(-driver.getRawAxis(RIGHT_Y) / 2);
+    } else {
+      leftDriveMotors.set(0);
+      rightDriveMotors.set(0);
+    }
   }
 
   /** This function is called once when the robot is disabled. */
