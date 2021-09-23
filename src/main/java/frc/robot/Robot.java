@@ -260,12 +260,12 @@ public class Robot extends TimedRobot {
 
   /* ------------------- FUNCTIONS --------------- */
   void drive() {
-    if(Math.abs(driver.L()) > .1) {
+    if (Math.abs(driver.L()) > .1) {
       leftDriveMotors.set(-driver.L() / 2);
     } else {
       leftDriveMotors.set(0);
     }
-    if(Math.abs(driver.R()) > .1) {
+    if (Math.abs(driver.R()) > .1) {
       rightDriveMotors.set(-driver.R() / 2);
     } else {
       rightDriveMotors.set(0);
@@ -273,7 +273,7 @@ public class Robot extends TimedRobot {
   }
 
   void turretMove() {
-    if(operator.RB()) {
+    if (operator.RB()) {
       m_TurretMotor.set(.1);
     } else if(operator.LB()) {
       m_TurretMotor.set(-.1);
@@ -296,7 +296,7 @@ public class Robot extends TimedRobot {
 
   void hopperRun() {
     // climber 2 on Y
-    if(operator.POVDown()) {
+    if (operator.POVDown()) {
       hopperMotors.set(.4);
     } else if(operator.POVUp()) {
       hopperMotors.set(-.4);
@@ -308,7 +308,7 @@ public class Robot extends TimedRobot {
 
   void shooterRun() {
     // shooter on driver right trigger
-    if(driver.RT() > .4) {
+    if (driver.RT() > .4) {
       shooterMotors.set(.7);
     } else {
       shooterMotors.set(0);
@@ -317,7 +317,7 @@ public class Robot extends TimedRobot {
 
   void hopperRetractSol() {
     // hopper on A
-    if(driver.A()) {
+    if (driver.A()) {
       hopperSol.set(Value.kReverse);
     } else {
       hopperSol.set(Value.kForward);
@@ -326,7 +326,7 @@ public class Robot extends TimedRobot {
 
   void intakeRun() {
     // intake on B
-    if(driver.B()) {
+    if (driver.B()) {
       intakeSol.set(Value.kReverse);
       m_IntakeMotors.set(ControlMode.PercentOutput, .5);
     } else {
@@ -336,7 +336,7 @@ public class Robot extends TimedRobot {
   }
 
   void climberRunMotors() {
-    if(driver.POVDown()) {
+    if (driver.POVDown()) {
       climberMotors.set(.6);
     } else {
       climberMotors.set(0);
@@ -345,14 +345,14 @@ public class Robot extends TimedRobot {
 
   void climberRunPistons() {
     // climber 2 on Y
-    if(driver.Y()) {
+    if (driver.Y()) {
       climberSol2.set(Value.kForward);
     } else {
       climberSol2.set(Value.kReverse);
     }
 
     // climber 1 on X
-    if(driver.X()) {
+    if (driver.X()) {
       climberSol1.set(Value.kForward);
     } else {
       climberSol1.set(Value.kReverse);
