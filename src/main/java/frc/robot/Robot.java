@@ -81,7 +81,7 @@ public class Robot extends TimedRobot {
   WPI_TalonSRX m_shooterRight = new WPI_TalonSRX(14);
 
   // initialize neo motors
-  CANSparkMax m_TurretMotor = new CANSparkMax(13, MotorType.kBrushless);
+  CANSparkMax m_turretMotor = new CANSparkMax(13, MotorType.kBrushless);
 
   // init speed controller groups
   SpeedControllerGroup shooterMotors = new SpeedControllerGroup(m_shooterLeft, m_shooterRight);
@@ -224,6 +224,8 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
+    turretMove();
+
     // servo to .5 on driver.X
     // if(operator.getRawButton(X_BUTTON)){
     //   leftServo.set(servoPos);
@@ -273,16 +275,7 @@ public class Robot extends TimedRobot {
     else{
       climberSol2.set(Value.kReverse);
     }
-    if(operator.RB()){
-      m_TurretMotor.set(.1);
-    }
-    else if(operator.LB()){
-      m_TurretMotor.set(-.1);
-    }
-    else {
-      m_TurretMotor.set(0);
-    }
-
+    // climber motors
     if(driver.POVDown()){
       climberMotors.set(.6);
       System.out.println("down");
@@ -317,4 +310,21 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {}
+
+
+void turretMove(){
+  if(operator.RB()){
+    m_turretMotor.set(.1);
+  }
+  else if(operator.LB()){
+    m_turretMotor.set(-.1);
+  }
+  else {
+    // autoAim();
+    m_turretMotor.set(0);
+  }
+}
+void autoAim(){
+  NetworkTableInstance.getDefault().getTable("limelight");
+}
 }
