@@ -10,6 +10,8 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import edu.wpi.cscore.UsbCamera;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
@@ -18,6 +20,10 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
+
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Servo;
 import com.revrobotics.CANSparkMax;
@@ -92,6 +98,17 @@ public class Robot extends TimedRobot {
   Controller driver = new Controller(0);
   Controller operator = new Controller(1);
 
+  
+
+  // init usbCamera
+  // ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+  UsbCamera camera1;
+  NetworkTableEntry cameraSelection;
+
+  /**
+   * This function is run when the robot is first started up and should be used for any
+   * initialization code.
+   */
 
   @Override
   public void robotInit() {
@@ -127,6 +144,13 @@ public class Robot extends TimedRobot {
     m_backLeft.setNeutralMode(NeutralMode.Coast);
     m_backRight.setNeutralMode(NeutralMode.Coast);
 
+    camera1 = CameraServer.getInstance().startAutomaticCapture(0);
+    // cameraSelection = NetworkTableInstance.getDefault().getTable("").getEntry("CameraSelection");
+
+    // NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+
+
+    // NetworkTableInstance.GetDefault().GetTable("limelight").PutNumber("ledMode", 3);    
     m_shooterLeft.setNeutralMode(NeutralMode.Coast);
     m_shooterRight.setNeutralMode(NeutralMode.Coast);
 
@@ -165,6 +189,8 @@ public class Robot extends TimedRobot {
 
     // output shooter motor speed to smartdashboard
     SmartDashboard.putNumber("RPM", speed);
+    SmartDashboard.putNumber("RPM2", speed);
+
   }
 
   @Override
@@ -264,12 +290,12 @@ public class Robot extends TimedRobot {
     else{
       climberMotors.set(0);
     }
-    if(Math.abs(driver.L()) > .2){
+    if(Math.abs(driver.L()) > .1){
       leftDriveMotors.set(-driver.L() / 2);
     } else {
       leftDriveMotors.set(0);
     }
-    if(Math.abs(driver.R()) > .2){
+    if(Math.abs(driver.R()) > .1){
       rightDriveMotors.set(-driver.R() / 2);
     } else {
       rightDriveMotors.set(0);
