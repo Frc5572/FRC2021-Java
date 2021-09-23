@@ -94,6 +94,11 @@ public class Robot extends TimedRobot {
   CANSparkMax m_Climber2 = new CANSparkMax(15, MotorType.kBrushless);
   SpeedControllerGroup climberMotors = new SpeedControllerGroup(m_Climber1, m_Climber2);
 
+  
+  WPI_TalonSRX m_hopperLeft = new WPI_TalonSRX(9);
+  WPI_TalonSRX m_hopperRight = new WPI_TalonSRX(10);
+  SpeedControllerGroup hopperMotors = new SpeedControllerGroup(m_hopperLeft, m_hopperRight);
+
   // controllers
   Controller driver = new Controller(0);
   Controller operator = new Controller(1);
@@ -157,6 +162,7 @@ public class Robot extends TimedRobot {
     // invert motors
     m_shooterLeft.setInverted(true);
     rightDriveMotors.setInverted(true);
+    m_hopperLeft.setInverted(true);
 
     // start compressor
     compressor.setClosedLoopControl(true);
@@ -293,12 +299,12 @@ public class Robot extends TimedRobot {
   void HopperRun() {
     // climber 2 on Y
     if(operator.POVDown()){
-      // m_HopperMotors.set(.4);
-    } else if(operator.POVDown()){
-      // m_HopperMotors.set(-.4);
+      hopperMotors.set(.4);
+    } else if(operator.POVUp()){
+      hopperMotors.set(-.4);
     }
     else{
-      // m_HopperMotors.set(0);
+      hopperMotors.set(0);
       hopperSol.set(Value.kReverse);
     }
   }
