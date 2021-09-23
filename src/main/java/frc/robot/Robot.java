@@ -40,6 +40,8 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
+
+  final double hopperMax = .7;
   
   // create constants
 
@@ -275,6 +277,7 @@ public class Robot extends TimedRobot {
     }
     if(operator.RB()){
       m_TurretMotor.set(.1);
+      System.out.println(m_TurretMotor.getMotorTemperature());
     }
     else if(operator.LB()){
       m_TurretMotor.set(-.1);
