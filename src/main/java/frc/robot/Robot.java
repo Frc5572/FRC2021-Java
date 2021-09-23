@@ -40,7 +40,7 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  
+
   // create constants
 
 
@@ -94,7 +94,7 @@ public class Robot extends TimedRobot {
   CANSparkMax m_Climber2 = new CANSparkMax(15, MotorType.kBrushless);
   SpeedControllerGroup climberMotors = new SpeedControllerGroup(m_Climber1, m_Climber2);
 
-  
+
   WPI_TalonSRX m_hopperLeft = new WPI_TalonSRX(9);
   WPI_TalonSRX m_hopperRight = new WPI_TalonSRX(10);
   SpeedControllerGroup hopperMotors = new SpeedControllerGroup(m_hopperLeft, m_hopperRight);
@@ -103,7 +103,7 @@ public class Robot extends TimedRobot {
   Controller driver = new Controller(0);
   Controller operator = new Controller(1);
 
-  
+
 
   // init usbCamera
   // ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
@@ -134,7 +134,7 @@ public class Robot extends TimedRobot {
 
     m_shooterLeft.set(ControlMode.PercentOutput, 0);
     m_shooterRight.set(ControlMode.PercentOutput, 0);
-    
+
 
     leftServo.set(0);
     leftServo.setBounds(2.0, 1.8, 1.5, 1.2, 1.0);
@@ -155,7 +155,7 @@ public class Robot extends TimedRobot {
     // NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
 
 
-    // NetworkTableInstance.GetDefault().GetTable("limelight").PutNumber("ledMode", 3);    
+    // NetworkTableInstance.GetDefault().GetTable("limelight").PutNumber("ledMode", 3);
     m_shooterLeft.setNeutralMode(NeutralMode.Coast);
     m_shooterRight.setNeutralMode(NeutralMode.Coast);
 
@@ -189,7 +189,7 @@ public class Robot extends TimedRobot {
     // assign variable to shooter motor speed
     double s1 = m_shooterLeft.getSelectedSensorVelocity();
     double s2 = m_shooterRight.getSelectedSensorVelocity();
-  
+
     // average speed between two shooter motors
     double speed = (s1 + s2) / 2;
 
@@ -279,19 +279,19 @@ public class Robot extends TimedRobot {
       m_TurretMotor.set(-.1);
     } else {
       m_TurretMotor.set(0);
-    }    
+    }
   }
 
-  void positionHood() {    
+  void positionHood() {
     // servo to .5 on driver.X
     // if(operator.getRawButton(X_BUTTON)){
     //   leftServo.set(servoPos);
     //   servoPos = servoPos + 0.01;
-    // } 
+    // }
     // else if (operator.getRawButton(Y_BUTTON)){
     //   leftServo.set(servoPos);
     //   servoPos = servoPos - 0.01;
-    // }   
+    // }
   }
 
   void hopperRun() {
