@@ -229,15 +229,15 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    Drive();
-    TurretMove();
-    PositionHood();
-    HopperRun();
-    ShooterRun();
-    HopperRetractSol();
-    IntakeRun();
-    ClimberRunMotors();
-    ClimberRunPistons();
+    drive();
+    turretMove();
+    positionHood();
+    hopperRun();
+    shooterRun();
+    hopperRetractSol();
+    intakeRun();
+    climberRunMotors();
+    climberRunPistons();
   }
 
   /** This function is called once when the robot is disabled. */
@@ -259,7 +259,7 @@ public class Robot extends TimedRobot {
 
 
   /* ------------------- FUNCTIONS --------------- */
-  void Drive() {
+  void drive() {
     if(Math.abs(driver.L()) > .1) {
       leftDriveMotors.set(-driver.L() / 2);
     } else {
@@ -272,7 +272,7 @@ public class Robot extends TimedRobot {
     }
   }
 
-  void TurretMove() {
+  void turretMove() {
     if(operator.RB()) {
       m_TurretMotor.set(.1);
     } else if(operator.LB()) {
@@ -282,7 +282,7 @@ public class Robot extends TimedRobot {
     }    
   }
 
-  void PositionHood() {    
+  void positionHood() {    
     // servo to .5 on driver.X
     // if(operator.getRawButton(X_BUTTON)){
     //   leftServo.set(servoPos);
@@ -294,7 +294,7 @@ public class Robot extends TimedRobot {
     // }   
   }
 
-  void HopperRun() {
+  void hopperRun() {
     // climber 2 on Y
     if(operator.POVDown()) {
       hopperMotors.set(.4);
@@ -306,7 +306,7 @@ public class Robot extends TimedRobot {
     }
   }
 
-  void ShooterRun() {
+  void shooterRun() {
     // shooter on driver right trigger
     if(driver.RT() > .4) {
       shooterMotors.set(.7);
@@ -315,7 +315,7 @@ public class Robot extends TimedRobot {
     }
   }
 
-  void HopperRetractSol() {
+  void hopperRetractSol() {
     // hopper on A
     if(driver.A()) {
       hopperSol.set(Value.kReverse);
@@ -324,7 +324,7 @@ public class Robot extends TimedRobot {
     }
   }
 
-  void IntakeRun() {
+  void intakeRun() {
     // intake on B
     if(driver.B()) {
       intakeSol.set(Value.kReverse);
@@ -335,7 +335,7 @@ public class Robot extends TimedRobot {
     }
   }
 
-  void ClimberRunMotors() {
+  void climberRunMotors() {
     if(driver.POVDown()) {
       climberMotors.set(.6);
     } else {
@@ -343,7 +343,7 @@ public class Robot extends TimedRobot {
     }
   }
 
-  void ClimberRunPistons() {
+  void climberRunPistons() {
     // climber 2 on Y
     if(driver.Y()) {
       climberSol2.set(Value.kForward);
