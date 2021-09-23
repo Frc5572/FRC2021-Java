@@ -189,6 +189,8 @@ public class Robot extends TimedRobot {
 
     // output shooter motor speed to smartdashboard
     SmartDashboard.putNumber("RPM", speed);
+    SmartDashboard.putNumber("RPM2", speed);
+
   }
 
   @Override
