@@ -90,6 +90,10 @@ public class Controller {
         return this.controller.getPOV() == DPadDown;
     }
 
+    boolean POVUp() {
+        return this.controller.getPOV() == DPadUp;
+    }
+
     boolean start() {
         return this.controller.getRawButton(START_BUTTON);
     }

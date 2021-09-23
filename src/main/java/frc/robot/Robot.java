@@ -40,7 +40,7 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  
+
   // create constants
 
 
@@ -94,11 +94,16 @@ public class Robot extends TimedRobot {
   CANSparkMax m_Climber2 = new CANSparkMax(15, MotorType.kBrushless);
   SpeedControllerGroup climberMotors = new SpeedControllerGroup(m_Climber1, m_Climber2);
 
+
+  WPI_TalonSRX m_hopperLeft = new WPI_TalonSRX(9);
+  WPI_TalonSRX m_hopperRight = new WPI_TalonSRX(10);
+  SpeedControllerGroup hopperMotors = new SpeedControllerGroup(m_hopperLeft, m_hopperRight);
+
   // controllers
   Controller driver = new Controller(0);
   Controller operator = new Controller(1);
 
-  
+
 
   // init usbCamera
   // ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
@@ -129,7 +134,7 @@ public class Robot extends TimedRobot {
 
     m_shooterLeft.set(ControlMode.PercentOutput, 0);
     m_shooterRight.set(ControlMode.PercentOutput, 0);
-    
+
 
     leftServo.set(0);
     leftServo.setBounds(2.0, 1.8, 1.5, 1.2, 1.0);
@@ -150,13 +155,14 @@ public class Robot extends TimedRobot {
     // NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
 
 
-    // NetworkTableInstance.GetDefault().GetTable("limelight").PutNumber("ledMode", 3);    
+    // NetworkTableInstance.GetDefault().GetTable("limelight").PutNumber("ledMode", 3);
     m_shooterLeft.setNeutralMode(NeutralMode.Coast);
     m_shooterRight.setNeutralMode(NeutralMode.Coast);
 
     // invert motors
     m_shooterLeft.setInverted(true);
     rightDriveMotors.setInverted(true);
+    m_hopperLeft.setInverted(true);
 
     // start compressor
     compressor.setClosedLoopControl(true);
@@ -183,7 +189,7 @@ public class Robot extends TimedRobot {
     // assign variable to shooter motor speed
     double s1 = m_shooterLeft.getSelectedSensorVelocity();
     double s2 = m_shooterRight.getSelectedSensorVelocity();
-  
+
     // average speed between two shooter motors
     double speed = (s1 + s2) / 2;
 
@@ -223,83 +229,15 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-
-    // servo to .5 on driver.X
-    // if(operator.getRawButton(X_BUTTON)){
-    //   leftServo.set(servoPos);
-    //   servoPos = servoPos + 0.01;
-    // } 
-    // else if (operator.getRawButton(Y_BUTTON)){
-    //   leftServo.set(servoPos);
-    //   servoPos = servoPos - 0.01;
-    // }
-    // shooter on driver right trigger
-    if(driver.RT() > .4){
-      shooterMotors.set(.7);
-    } else {
-      shooterMotors.set(0);
-    }
-    // intake on B
-    if(driver.B()){
-      intakeSol.set(Value.kReverse);
-      m_IntakeMotors.set(ControlMode.PercentOutput, .5);
-    }
-    else{
-      intakeSol.set(Value.kForward);
-      m_IntakeMotors.set(ControlMode.PercentOutput, 0);
-    }
-    // hopper on A
-    if(driver.A()){
-      hopperSol.set(Value.kReverse);
-    }
-    else{
-      hopperSol.set(Value.kForward);
-    }
-    
-    // climber 1 on X
-    if(driver.X()){
-      climberSol1.set(Value.kForward);
-      System.out.println("Pressed X");
-    }
-    
-    else{
-      climberSol1.set(Value.kReverse);
-    }
-    // climber 2 on Y
-    if(driver.Y()){
-      climberSol2.set(Value.kForward);
-      System.out.println("Pressed Y");
-    }
-    else{
-      climberSol2.set(Value.kReverse);
-    }
-    if(operator.RB()){
-      m_TurretMotor.set(.1);
-    }
-    else if(operator.LB()){
-      m_TurretMotor.set(-.1);
-    }
-    else {
-      m_TurretMotor.set(0);
-    }
-
-    if(driver.POVDown()){
-      climberMotors.set(.6);
-      System.out.println("down");
-    }
-    else{
-      climberMotors.set(0);
-    }
-    if(Math.abs(driver.L()) > .1){
-      leftDriveMotors.set(-driver.L() / 2);
-    } else {
-      leftDriveMotors.set(0);
-    }
-    if(Math.abs(driver.R()) > .1){
-      rightDriveMotors.set(-driver.R() / 2);
-    } else {
-      rightDriveMotors.set(0);
-    }
+    drive();
+    turretMove();
+    positionHood();
+    hopperRun();
+    shooterRun();
+    hopperRetractSol();
+    intakeRun();
+    climberRunMotors();
+    climberRunPistons();
   }
 
   /** This function is called once when the robot is disabled. */
@@ -317,4 +255,108 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {}
+
+
+
+  /* ------------------- FUNCTIONS --------------- */
+  void drive() {
+    if (Math.abs(driver.L()) > .1) {
+      leftDriveMotors.set(-driver.L() / 2);
+    } else {
+      leftDriveMotors.set(0);
+    }
+    if (Math.abs(driver.R()) > .1) {
+      rightDriveMotors.set(-driver.R() / 2);
+    } else {
+      rightDriveMotors.set(0);
+    }
+  }
+
+  void turretMove() {
+    if (operator.RB()) {
+      m_TurretMotor.set(.1);
+    } else if(operator.LB()) {
+      m_TurretMotor.set(-.1);
+    } else {
+      m_TurretMotor.set(0);
+    }
+  }
+
+  void positionHood() {
+    // servo to .5 on driver.X
+    // if(operator.getRawButton(X_BUTTON)){
+    //   leftServo.set(servoPos);
+    //   servoPos = servoPos + 0.01;
+    // }
+    // else if (operator.getRawButton(Y_BUTTON)){
+    //   leftServo.set(servoPos);
+    //   servoPos = servoPos - 0.01;
+    // }
+  }
+
+  void hopperRun() {
+    // climber 2 on Y
+    if (operator.POVDown()) {
+      hopperMotors.set(.4);
+    } else if(operator.POVUp()) {
+      hopperMotors.set(-.4);
+    } else {
+      hopperMotors.set(0);
+      hopperSol.set(Value.kReverse);
+    }
+  }
+
+  void shooterRun() {
+    // shooter on driver right trigger
+    if (driver.RT() > .4) {
+      shooterMotors.set(.7);
+    } else {
+      shooterMotors.set(0);
+    }
+  }
+
+  void hopperRetractSol() {
+    // hopper on A
+    if (driver.A()) {
+      hopperSol.set(Value.kReverse);
+    } else {
+      hopperSol.set(Value.kForward);
+    }
+  }
+
+  void intakeRun() {
+    // intake on B
+    if (driver.B()) {
+      intakeSol.set(Value.kReverse);
+      m_IntakeMotors.set(ControlMode.PercentOutput, .5);
+    } else {
+      intakeSol.set(Value.kForward);
+      m_IntakeMotors.set(ControlMode.PercentOutput, 0);
+    }
+  }
+
+  void climberRunMotors() {
+    if (driver.POVDown()) {
+      climberMotors.set(.6);
+    } else {
+      climberMotors.set(0);
+    }
+  }
+
+  void climberRunPistons() {
+    // climber 2 on Y
+    if (driver.Y()) {
+      climberSol2.set(Value.kForward);
+    } else {
+      climberSol2.set(Value.kReverse);
+    }
+
+    // climber 1 on X
+    if (driver.X()) {
+      climberSol1.set(Value.kForward);
+    } else {
+      climberSol1.set(Value.kReverse);
+    }
+  }
+
 }
