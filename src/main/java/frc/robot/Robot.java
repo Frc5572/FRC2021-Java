@@ -290,12 +290,12 @@ public class Robot extends TimedRobot {
     else{
       climberMotors.set(0);
     }
-    if(Math.abs(driver.L()) > .2){
+    if(Math.abs(driver.L()) > .1){
       leftDriveMotors.set(-driver.L() / 2);
     } else {
       leftDriveMotors.set(0);
     }
-    if(Math.abs(driver.R()) > .2){
+    if(Math.abs(driver.R()) > .1){
       rightDriveMotors.set(-driver.R() / 2);
     } else {
       rightDriveMotors.set(0);
