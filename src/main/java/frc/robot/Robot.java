@@ -42,7 +42,23 @@ public class Robot extends TimedRobot {
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
   
   // create constants
-
+  final double x1 = -0.0000000025291;
+  final double x2 = 0.0000334240538;
+  final double x3 = -0.1545379987062;
+  final double b = 315.5170993015826;
+  final double heightOfShooter = 38;
+  final double heightOfTower = 98;
+  final double heightdiff = heightOfTower - heightOfShooter;
+  final double minAngle = 25;
+  final double maxAngle = 65;
+  final double maxPosition = 0;
+  final double minPosition = 1;
+  final double m1 = -(maxPosition - minPosition) / (maxAngle - minAngle);
+  final double b1 = -.625;
+  final double limitTurret = 20;
+  final double limitServo = .7;
+  final double hoodOffset = 30;
+  final double pi = 3.14159265358979323846;
 
   // public var for shooter PID
   double v1;
@@ -65,7 +81,7 @@ public class Robot extends TimedRobot {
 
 
   //                         not right ?????????????????????????????????????????????????????????????
-  Servo leftServo = new Servo(1);
+  Servo servos = new Servo(1);
 
   // initialize  talon motors
   WPI_TalonSRX m_frontLeft = new WPI_TalonSRX(4);
@@ -131,8 +147,8 @@ public class Robot extends TimedRobot {
     m_shooterRight.set(ControlMode.PercentOutput, 0);
     
 
-    leftServo.set(0);
-    leftServo.setBounds(2.0, 1.8, 1.5, 1.2, 1.0);
+    servos.set(0);
+    servos.setBounds(2.0, 1.8, 1.5, 1.2, 1.0);
 
     m_IntakeMotors.set(ControlMode.PercentOutput, 0);
 
@@ -324,7 +340,36 @@ void turretMove(){
     m_turretMotor.set(0);
   }
 }
+
 void autoAim(){
   NetworkTableInstance.getDefault().getTable("limelight");
 }
+
+double calculateDistance(double area){
+  double r = x1*java.lang.Math.pow(area, 3) + x2*java.lang.Math.pow(area, 2) +x3*area + b;
+  return r;
+}
+
+void PositionHood(){
+    NetworkTableEntry sShort = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tshort");
+    NetworkTableEntry sLong = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tlong");
+    // double os = SmartDashboard.getNumber("Hood Angle Adjust", hoodOffset);
+    
+    System.out.println(sShort.getType());
+    System.out.println(sLong.getType());
+    
+    // double area = sLong * sShort;
+    // // std::cout << "Total area: " << area << "\n";
+    // System.out.println(calculateDistance(area) + "inches\n");
+    // double a1 = java.lang.Math.atan2(heightdiff, calculateDistance(area)) * (180/pi);
+    // // std::cout << "a1 " << a1 << "\n";
+    // double a2 = 90 - a1 - os;
+    // // std::cout << "a2 " << a2 << "\n";
+    // double p = (1 / (maxAngle - minAngle))*(a2-maxAngle) + 1;
+    // // std::cout << "servo position" << p << "\n";
+    // if (p >= .7) {
+    //     p = .7;
+    // }
+    // servos.set(p);;
+  }
 }
