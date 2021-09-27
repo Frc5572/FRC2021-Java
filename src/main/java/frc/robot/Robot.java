@@ -309,6 +309,11 @@ public class Robot extends TimedRobot {
     } else {
       rightDriveMotors.set(0);
     }
+    if(driver.start()){
+      PositionHood();
+    } else {
+      servos.set(0);
+    }
   }
 
   /** This function is called once when the robot is disabled. */
@@ -351,25 +356,22 @@ double calculateDistance(double area){
 }
 
 void PositionHood(){
-    NetworkTableEntry sShort = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tshort");
-    NetworkTableEntry sLong = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tlong");
-    // double os = SmartDashboard.getNumber("Hood Angle Adjust", hoodOffset);
+    double sShort = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tshort").getDouble(1);
+    double sLong = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tlong").getDouble(1);
+    double os = SmartDashboard.getNumber("Hood Angle Adjust", hoodOffset);
     
-    System.out.println(sShort.getType());
-    System.out.println(sLong.getType());
-    
-    // double area = sLong * sShort;
-    // // std::cout << "Total area: " << area << "\n";
-    // System.out.println(calculateDistance(area) + "inches\n");
-    // double a1 = java.lang.Math.atan2(heightdiff, calculateDistance(area)) * (180/pi);
-    // // std::cout << "a1 " << a1 << "\n";
-    // double a2 = 90 - a1 - os;
-    // // std::cout << "a2 " << a2 << "\n";
-    // double p = (1 / (maxAngle - minAngle))*(a2-maxAngle) + 1;
-    // // std::cout << "servo position" << p << "\n";
-    // if (p >= .7) {
-    //     p = .7;
-    // }
-    // servos.set(p);;
+    double area = sLong * sShort;
+    // std::cout << "Total area: " << area << "\n";
+    System.out.println(calculateDistance(area) + "inches\n");
+    double a1 = java.lang.Math.atan2(heightdiff, calculateDistance(area)) * (180/pi);
+    // std::cout << "a1 " << a1 << "\n";
+    double a2 = 90 - a1 - os;
+    // std::cout << "a2 " << a2 << "\n";
+    double p = (1 / (maxAngle - minAngle))*(a2-maxAngle) + 1;
+    // std::cout << "servo position" << p << "\n";
+    if (p >= .7) {
+        p = .7;
+    }
+    servos.set(p);;
   }
 }
