@@ -114,6 +114,8 @@ public class Robot extends TimedRobot {
   Controller driver = new Controller(0);
   Controller operator = new Controller(1);
 
+  VisionManager visionManager = new VisionManager();
+
   
 
   // init usbCamera
@@ -207,6 +209,8 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("RPM", speed);
     SmartDashboard.putNumber("RPM2", speed);
 
+    visionManager.Update();
+
   }
 
   @Override
@@ -239,7 +243,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-
+    PositionHood();
     turretMove();
 
     // servo to .5 on driver.X
@@ -309,11 +313,6 @@ public class Robot extends TimedRobot {
     } else {
       rightDriveMotors.set(0);
     }
-    if(driver.start()){
-      PositionHood();
-    } else {
-      servos.set(0);
-    }
   }
 
   /** This function is called once when the robot is disabled. */
@@ -374,4 +373,31 @@ void PositionHood(){
     }
     servos.set(p);;
   }
+
+double CalculateAngle(double distance){
+    double t = java.lang.Math.atan2(heightdiff , distance);
+    double d = t * (180 / pi);
+    double corrected_d = (90 - d - 25);
+    double r = m1 * corrected_d  + b1;
+    if (corrected_d > 64) {
+      r = limitServo;
+    } else if (corrected_d < 26) {
+      r = 0;
+    }   
+    return r;
+  }
+
+void AutoAim() {
+  // NetworkTableInstance.getDefault().getTable("limelight").addEntryListener("camMode", 0);
+  // NetworkTableInstance.getDefault().getTable("limelight").addEntryListener("ledMode", 3);
+  // double disX = LimeLight
+
+
+  // auto l = drive->LeftMotors->Get();
+  // auto r = drive->RightMotors->Get();
+
+  // auto s = (disX/125) - (l/90) + (r/90);
+
+  // TurretMotor->Set(s);
+}
 }
