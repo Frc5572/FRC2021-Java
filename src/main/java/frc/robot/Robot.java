@@ -23,7 +23,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-
+import edu.wpi.first.networktables.TableEntryListener;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Servo;
 import com.revrobotics.CANSparkMax;
@@ -131,6 +131,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
+
+    TableEntryListener limelight = new TableEntryListener();
 
     // smart dashboard put PID values
     // SmartDashboard.putNumber("P Gain", 0);
@@ -391,7 +393,7 @@ double CalculateAngle(double distance){
   }
 
 void AutoAim() {
-  NetworkTableInstance.getDefault().getTable("limelight").addEntryListener("camMode", 0);
+  NetworkTableInstance.getDefault().getTable("limelight").addEntryListener("ledMode", limelight, 0);
   NetworkTableInstance.getDefault().getTable("limelight").addEntryListener("ledMode", 3);
 
 
