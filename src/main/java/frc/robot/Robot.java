@@ -131,9 +131,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-
-    TableEntryListener limelight = new TableEntryListener();
-
     // smart dashboard put PID values
     // SmartDashboard.putNumber("P Gain", 0);
     // SmartDashboard.putNumber("I Gain", 0);
@@ -393,8 +390,8 @@ double CalculateAngle(double distance){
   }
 
 void AutoAim() {
-  NetworkTableInstance.getDefault().getTable("limelight").addEntryListener("ledMode", limelight, 0);
-  NetworkTableInstance.getDefault().getTable("limelight").addEntryListener("ledMode", 3);
+//   NetworkTableInstance.getDefault().getTable("limelight").addEntryListener("ledMode", limelight, 0);
+//   NetworkTableInstance.getDefault().getTable("limelight").addEntryListener("ledMode", 3);
 
 
   double l = leftDriveMotors.get();
