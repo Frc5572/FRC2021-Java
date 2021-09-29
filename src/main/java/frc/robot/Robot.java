@@ -122,6 +122,7 @@ public class Robot extends TimedRobot {
   // ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
   UsbCamera camera1;
   NetworkTableEntry cameraSelection;
+  NetworkTableEntry limelight;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -245,6 +246,8 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     PositionHood();
     turretMove();
+    visionManager.Update();
+    AutoAim();
 
     // servo to .5 on driver.X
     // if(operator.getRawButton(X_BUTTON)){
@@ -388,16 +391,15 @@ double CalculateAngle(double distance){
   }
 
 void AutoAim() {
-  // NetworkTableInstance.getDefault().getTable("limelight").addEntryListener("camMode", 0);
-  // NetworkTableInstance.getDefault().getTable("limelight").addEntryListener("ledMode", 3);
-  // double disX = LimeLight
+  NetworkTableInstance.getDefault().getTable("limelight").addEntryListener("camMode", 0);
+  NetworkTableInstance.getDefault().getTable("limelight").addEntryListener("ledMode", 3);
 
 
-  // auto l = drive->LeftMotors->Get();
-  // auto r = drive->RightMotors->Get();
+  double l = leftDriveMotors.get();
+  double r = rightDriveMotors.get();
 
-  // auto s = (disX/125) - (l/90) + (r/90);
+  double s = (visionManager.Update()/125) - (l/90) + (r/90);
 
-  // TurretMotor->Set(s);
+  m_turretMotor.set(s);
 }
 }
