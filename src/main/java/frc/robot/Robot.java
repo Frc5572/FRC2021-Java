@@ -212,29 +212,181 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void autonomousInit() {
+   public void autonomousInit() {
 
-    // start timer
+    autoNum = SmartDashboard.getString("auto", "1");
+    if (std::find(l.begin(), l.end(), autoNum) == l.end())
+    {
+        autoNum = "1";
+    }
+    timer.reset();
     timer.start();
-
-    m_autoSelected = m_chooser.getSelected();
-    m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
-    System.out.println("Auto selected: " + m_autoSelected);
-
+    //ahrs.Reset();
+    servos.setPosition(0);
+    m_backLeft.setSelectedSensorPosition(0);
+    intakeSol.set(Value.kReverse);
+    hopperSol.set(Value.kForward);
+    boolean firstPart = false;
+    boolean secondPart = false;
+    boolean thirdPart = false;
+    boolean fourthPart = false;
+    boolean fifthPart = false;
   }
 
   @Override
   public void autonomousPeriodic() {
-    switch (m_autoSelected) {
-      case kCustomAuto:
-        // Put custom auto code here
-        break;
-      case kDefaultAuto:
-      default:
-        // Put default auto code here
-        break;
+    autoAim();
+    PositionHood();
+    m_shooterRight.set(.7);
+    m_shooterLeft.set(.7);
+    if (autoN){
+     System.out.println("auto 1");
+        if (!firstPart) {
+            intakeSol.set(Value.kReverse);
+            if(m_timer.Get() < .3){
+                m_turretMotor.set(.1);
+            }
+            else if(m_timer.Get() > .3 && m_timer.Get() < .7){
+                m_turretMotor.set(.1);
+                // s1.SetPosition(.1);
+            }
+            else if (m_timer.Get() > .7 && m_timer.Get() < 3) {
+            }
+            else if (m_timer.Get() > 3 && m_timer.Get() < 3.5 ){
+                // turret.Off();
+                hopper.HopperMotors.set(.4);
+            }
+            else if (m_timer.Get() > 3.5 && m_timer.Get() < 4 ){
+                // turret.Off();
+                // hopper.HopperMotors->Set(.5);
+            }
+            else if (m_timer.Get() > 4 && m_timer.Get() < 5.5 ){
+                // turret.Off();
+                // hopper.HopperMotors->Set(.6);
+            }
+            else if (m_timer.Get() > 5.5 && m_timer.Get() < 6) {
+                hopper.HopperMotors.set(0.0);
+                // s1.SetPosition(0);
+            } else {
+                m_leftMiddleMotor.SetSelectedSensorPosition(0);
+                firstPart = true;
+            }
+        } else if (!secondPart) {
+            m_timer.Stop();
+            if (abs(m_leftMiddleMotor.GetSelectedSensorPosition()) < ticks)
+            {
+                driveTrain.LeftMotors.set(.3);
+                driveTrain.RightMotors.set(.3);
+                m_intake.Set(.3);
+                hopper.HopperMotors.set(.4);
+                hopperSol.Set(Value.kReverse);
+            } else {
+                driveTrain.LeftMotors.set(0);
+                driveTrain.RightMotors.set(0);
+                secondPart = true;
+            }
+        } else if (!thirdPart) {
+            m_timer.Start();
+            if (m_timer.Get() > 6 && m_timer.Get() < 6.25) {
+                m_turretMotor.Set(.2);
+            }
+            if (m_timer.Get() > 6 && m_timer.Get() < 6.5) {
+                driveTrain.LeftMotors.set(0);
+                driveTrain.RightMotors.set(0);
+            } else {
+                m_timer.Stop();
+                thirdPart = true;
+            }
+        } else if (!fourthPart) {
+            if (abs(m_leftMiddleMotor.GetSelectedSensorPosition()) > (12 * 11 * (eticks / circum))) {
+                driveTrain.LeftMotors.set(-.3);
+                driveTrain.RightMotors.set(-.3);
+                // s1.SetPosition(.1);
+            } else {
+                driveTrain.LeftMotors.set(0);
+                driveTrain.RightMotors.set(0);
+                m_timer.Start();
+                fourthPart = true;
+            }
+        } else if (!fifthPart) {
+            if (m_timer.Get() > 6.5 && m_timer.Get() < 8) {
+                driveTrain.LeftMotors.set(0);
+                driveTrain.RightMotors.set(0);
+                intakeSol.set(Value.kForward);
+                hopperSol.set(Value.kForward);
+            } else if (m_timer.Get() > 8 && m_timer.Get() < 10) {
+                intakeSol.set(Value.kReverse);
+                hopper.HopperMotors.set(.4);
+            } else if (m_timer.Get() > 10 && m_timer.Get() < 12) {
+                intakeSol.set(Value.kForward);
+            } else if (m_timer.Get() > 12 && m_timer.Get() < 12.5) {
+                m_shooter1.set(0);
+                m_shooter2.set(0);
+                hopper.HopperMotors.set(0.0);
+                m_intake.set(0);
+            } else {
+                fifthPart = true;
+            }
+        }
+    }
+    else if (autoNum == "2")
+    {
+        system.out.println("Auto 2");
+        if (!firstPart) {
+            if(m_timer.Get() < .3){
+                // m_turret.Set(.1);
+            }
+            else if(m_timer.Get() > .3 && m_timer.Get() < .7){
+                // m_turret.Set(.1);
+                // s1.SetPosition(.1);
+            }
+            else if (m_timer.Get() > .7 && m_timer.Get() < 5) {
+
+            }
+            else if (m_timer.Get() > 5 && m_timer.Get() < 9.5 ){
+                // turret.Off();
+                hopper.HopperMotors.set(.5);
+            }
+            else if (m_timer.Get() > 9.5 && m_timer.Get() < 10) {
+                // hopper.HopperMotors->Set(0.0);
+                // s1.SetPosition(0);
+            }
+            else if (m_timer.Get() > 10 && m_timer.Get() < 10.25) {
+                hopperSol.Set(Value.kForward);
+            }
+            else if (m_timer.Get() > 10.25 && m_timer.Get() < 10.5) {
+                hopperSol.Set(Value.kForward);
+            }
+            else if (m_timer.Get() > 10.5 && m_timer.Get() < 11) {
+                hopperSol.Set(Value.kReverse);
+            }
+            else if (m_timer.Get() > 11 && m_timer.Get() < 11.25) {
+                hopperSol.Set(Value.kForward);
+            }
+            else if (m_timer.Get() > 11.25 && m_timer.Get() < 12) {
+                hopperSol.Set(Value.kReverse);
+            }
+            else if (m_timer.Get() > 12 && m_timer.Get() < 12.5) {
+                hopperSol.Set(Value.kForward);
+            } else {
+                m_leftMiddleMotor.SetSelectedSensorPosition(0);
+                firstPart = true;
+            }
+        } else if (!secondPart) {
+            m_timer.Stop();
+            if (abs(m_leftMiddleMotor.GetSelectedSensorPosition()) < (ticks / 13) * 2)
+            {
+                driveTrain.LeftMotors.set(-.3);
+                driveTrain.RightMotors.set(-.3);
+            } else {
+                driveTrain.LeftMotors.set(0);
+                driveTrain.RightMotors.set(0);
+                secondPart = true;
+            }
+        }
     }
   }
+
 
   @Override
   public void teleopInit() {}
