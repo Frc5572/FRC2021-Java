@@ -122,23 +122,9 @@ public class Robot extends TimedRobot {
 
   VisionManager visionManager = new VisionManager();
 
-
-
-  // init usbCamera
-  // ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
   UsbCamera camera1;
   NetworkTableEntry cameraSelection;
   NetworkTableEntry limelight;
-
-  /**
-   * This function is run when the robot is first started up and should be used for any
-   * initialization code.
-   */
-
-  /**
-   * This function is run when the robot is first started up and should be used for any
-   * initialization code.
-   */
 
   @Override
   public void robotInit() {
@@ -258,10 +244,7 @@ public class Robot extends TimedRobot {
     PositionHood();
     turretMove();
     visionManager.Update();
-    AutoAim();
     drive();
-    turretMove();
-    positionHood();
     hopperRun();
     shooterRun();
     hopperRetractSol();
@@ -308,20 +291,9 @@ public class Robot extends TimedRobot {
     } else if(operator.LB()) {
       m_turretMotor.set(-.1);
     } else {
-      m_turretMotor.set(0);
+      autoAim();
+    //   m_turretMotor.set(0);
     }
-  }
-
-  void positionHood() {
-    // servo to .5 on driver.X
-    // if(operator.getRawButton(X_BUTTON)){
-    //   leftServo.set(servoPos);
-    //   servoPos = servoPos + 0.01;
-    // }
-    // else if (operator.getRawButton(Y_BUTTON)){
-    //   leftServo.set(servoPos);
-    //   servoPos = servoPos - 0.01;
-    // }
   }
 
   void hopperRun() {
@@ -403,7 +375,13 @@ public class Robot extends TimedRobot {
   }
 
 void autoAim(){
-  NetworkTableInstance.getDefault().getTable("limelight");
+//   NetworkTableInstance.getDefault().getTable("limelight");
+    double l = leftDriveMotors.get();
+    double r = rightDriveMotors.get();
+
+    double s = (visionManager.Update()/125) - (l/90) + (r/90);
+
+    m_turretMotor.set(s);
 }
 
 double calculateDistance(double area){
