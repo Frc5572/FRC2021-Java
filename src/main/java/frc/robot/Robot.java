@@ -247,10 +247,9 @@ public class Robot extends TimedRobot {
     drive();
     hopperRun();
     shooterRun();
-    hopperRetractSol();
+    hopperRun();
     intakeRun();
-    climberRunMotors();
-    climberRunPistons();
+    Climb();
   }
 
   /** This function is called once when the robot is disabled. */
@@ -272,166 +271,132 @@ public class Robot extends TimedRobot {
 
 
   /* ------------------- FUNCTIONS --------------- */
-  void drive() {
-    if (Math.abs(driver.L()) > .1) {
-      leftDriveMotors.set(-driver.L() / 2);
-    } else {
-      leftDriveMotors.set(0);
+    void drive() {
+        if (Math.abs(driver.L()) > .1) {
+            leftDriveMotors.set(-driver.L() / 2);
+        } else {
+            leftDriveMotors.set(0);
+        }
+        if (Math.abs(driver.R()) > .1) {
+            rightDriveMotors.set(-driver.R() / 2);
+        } else {
+            rightDriveMotors.set(0);
+        }
     }
-    if (Math.abs(driver.R()) > .1) {
-      rightDriveMotors.set(-driver.R() / 2);
-    } else {
-      rightDriveMotors.set(0);
-    }
-  }
 
-  void turretMove() {
-    if (operator.RB()) {
-      m_turretMotor.set(.1);
-    } else if(operator.LB()) {
-      m_turretMotor.set(-.1);
-    } else {
-      autoAim();
-    //   m_turretMotor.set(0);
+    void turretMove() {
+        if (operator.RB()) {
+            m_turretMotor.set(.1);
+        } else if(operator.LB()) {
+            m_turretMotor.set(-.1);
+        } else {
+        autoAim();
+        }
     }
-  }
 
-  void hopperRun() {
-    // climber 2 on Y
-    if (operator.POVDown()) {
-      hopperMotors.set(.4);
-    } else if(operator.POVUp()) {
-      hopperMotors.set(-.4);
-    } else {
-      hopperMotors.set(0);
-      hopperSol.set(Value.kReverse);
+    void hopperRun() {
+        if (operator.POVDown()) {
+            hopperMotors.set(.4);
+        } else if(operator.POVUp()) {
+            hopperMotors.set(-.4);
+            hopperSol.set(Value.kForward);
+        } else {
+            hopperMotors.set(0);
+            hopperSol.set(Value.kReverse);
+        }
     }
-  }
 
-  void shooterRun() {
-    // shooter on driver right trigger
-    if (driver.RT() > .4) {
-      shooterMotors.set(.7);
-    } else {
-      shooterMotors.set(0);
+    void shooterRun() {
+        // shooter on driver right trigger
+        if (operator.RT() > .4) {
+            shooterMotors.set(.7);
+        } else {
+            shooterMotors.set(0);
+        }
     }
-  }
 
-  void hopperRetractSol() {
-    // hopper on A
-    if (driver.A()) {
-      hopperSol.set(Value.kReverse);
-    } else {
-      hopperSol.set(Value.kForward);
-    }
-  }
 
   void intakeRun() {
     // intake on B
-    if (driver.B()) {
-      intakeSol.set(Value.kReverse);
-      m_IntakeMotors.set(ControlMode.PercentOutput, .5);
+    if (operator.B()) {
+        intakeSol.set(Value.kReverse);
+        m_IntakeMotors.set(ControlMode.PercentOutput, .5);
     } else {
-      intakeSol.set(Value.kForward);
-      m_IntakeMotors.set(ControlMode.PercentOutput, 0);
+        intakeSol.set(Value.kForward);
+        m_IntakeMotors.set(ControlMode.PercentOutput, 0);
     }
-    // hopper on A
-    if(driver.A()){
-      hopperSol.set(Value.kReverse);
-    }
-    else{
-      hopperSol.set(Value.kForward);
-    }
-}
-
-    void climberRunMotors() {
-        if (driver.POVDown()) {
-        climberMotors.set(.6);
-        } else {
-        climberMotors.set(0);
-        }
-        if(Math.abs(driver.L()) > .1){
-        leftDriveMotors.set(-driver.L() / 2);
-        }
     }
 
-  void climberRunPistons() {
+    void Climb() {
     // climber 2 on Y
-    if (driver.Y()) {
-      climberSol2.set(Value.kForward);
-    } else {
-      climberSol2.set(Value.kReverse);
+        if (driver.Y()) {
+            climberSol2.set(Value.kReverse);
+            climberSol1.set(Value.kReverse);
+        } else {
+            climberSol2.set(Value.kForward);
+            climberSol1.set(Value.kForward);
+        }
+        if (driver.POVDown()) {
+            climberMotors.set(.6);
+        } else {
+            climberMotors.set(0);
+        }
     }
-    if(Math.abs(driver.R()) > .1){
-      rightDriveMotors.set(-driver.R() / 2);
 
-    // climber 1 on X
-    if (driver.X()) {
-      climberSol1.set(Value.kForward);
-    } else {
-      climberSol1.set(Value.kReverse);
+    void autoAim(){
+    //   NetworkTableInstance.getDefault().getTable("limelight");
+        double l = leftDriveMotors.get();
+        double r = rightDriveMotors.get();
+
+        double s = (visionManager.Update()/125) - (l/90) + (r/90);
+
+        m_turretMotor.set(s);
     }
+
+    double calculateDistance(double area){
+        double r = x1*java.lang.Math.pow(area, 3) + x2*java.lang.Math.pow(area, 2) +x3*area + b;
+        return r;
     }
-  }
 
-void autoAim(){
-//   NetworkTableInstance.getDefault().getTable("limelight");
-    double l = leftDriveMotors.get();
-    double r = rightDriveMotors.get();
+    void PositionHood(){
+        double sShort = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tshort").getDouble(1);
+        double sLong = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tlong").getDouble(1);
+        double os = SmartDashboard.getNumber("Hood Angle Adjust", hoodOffset);
 
-    double s = (visionManager.Update()/125) - (l/90) + (r/90);
-
-    m_turretMotor.set(s);
-}
-
-double calculateDistance(double area){
-  double r = x1*java.lang.Math.pow(area, 3) + x2*java.lang.Math.pow(area, 2) +x3*area + b;
-  return r;
-}
-
-void PositionHood(){
-    double sShort = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tshort").getDouble(1);
-    double sLong = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tlong").getDouble(1);
-    double os = SmartDashboard.getNumber("Hood Angle Adjust", hoodOffset);
-
-    double area = sLong * sShort;
-    // std::cout << "Total area: " << area << "\n";
-    System.out.println(calculateDistance(area) + "inches\n");
-    double a1 = java.lang.Math.atan2(heightdiff, calculateDistance(area)) * (180/pi);
-    // std::cout << "a1 " << a1 << "\n";
-    double a2 = 90 - a1 - os;
-    // std::cout << "a2 " << a2 << "\n";
-    double p = (1 / (maxAngle - minAngle))*(a2-maxAngle) + 1;
-    // std::cout << "servo position" << p << "\n";
-    if (p >= .7) {
-        p = .7;
+        double area = sLong * sShort;
+        // std::cout << "Total area: " << area << "\n";
+        System.out.println(calculateDistance(area) + "inches\n");
+        double a1 = java.lang.Math.atan2(heightdiff, calculateDistance(area)) * (180/pi);
+        // std::cout << "a1 " << a1 << "\n";
+        double a2 = 90 - a1 - os;
+        // std::cout << "a2 " << a2 << "\n";
+        double p = (1 / (maxAngle - minAngle))*(a2-maxAngle) + 1;
+        // std::cout << "servo position" << p << "\n";
+        if (p >= .7) {
+            p = .7;
+        }
+        servos.set(p);;
     }
-    servos.set(p);;
-  }
 
-double CalculateAngle(double distance){
-    double t = java.lang.Math.atan2(heightdiff , distance);
-    double d = t * (180 / pi);
-    double corrected_d = (90 - d - 25);
-    double r = m1 * corrected_d  + b1;
-    if (corrected_d > 64) {
-      r = limitServo;
-    } else if (corrected_d < 26) {
-      r = 0;
+    double CalculateAngle(double distance){
+        double t = java.lang.Math.atan2(heightdiff , distance);
+        double d = t * (180 / pi);
+        double corrected_d = (90 - d - 25);
+        double r = m1 * corrected_d  + b1;
+        if (corrected_d > 64) {
+            r = limitServo;
+        } else if (corrected_d < 26) {
+            r = 0;
+        }
+        return r;
     }
-    return r;
-  }
 
-void AutoAim() {
-//   NetworkTableInstance.getDefault().getTable("limelight").addEntryListener("ledMode", limelight, 0);
-//   NetworkTableInstance.getDefault().getTable("limelight").addEntryListener("ledMode", 3);
-
-
-  double l = leftDriveMotors.get();
-  double r = rightDriveMotors.get();
-
-  double s = (visionManager.Update()/125) - (l/90) + (r/90);
-
-  m_turretMotor.set(s);
-}
+    void AutoAim() {
+        //   NetworkTableInstance.getDefault().getTable("limelight").addEntryListener("ledMode", limelight, 0);
+        //   NetworkTableInstance.getDefault().getTable("limelight").addEntryListener("ledMode", 3);
+        double l = leftDriveMotors.get();
+        double r = rightDriveMotors.get();
+        double s = (visionManager.Update()/125) - (l/90) + (r/90);
+        m_turretMotor.set(s);
+    }
 }
