@@ -249,8 +249,7 @@ public class Robot extends TimedRobot {
     shooterRun();
     hopperRun();
     intakeRun();
-    climberRunMotors();
-    climberRunPistons();
+    Climb();
   }
 
   /** This function is called once when the robot is disabled. */
@@ -296,11 +295,11 @@ public class Robot extends TimedRobot {
     }
 
     void hopperRun() {
-        // climber 2 on Y
         if (operator.POVDown()) {
             hopperMotors.set(.4);
         } else if(operator.POVUp()) {
             hopperMotors.set(-.4);
+            hopperSol.set(Value.kForward);
         } else {
             hopperMotors.set(0);
             hopperSol.set(Value.kReverse);
@@ -328,15 +327,7 @@ public class Robot extends TimedRobot {
     }
     }
 
-    void climberRunMotors() {
-        if (driver.POVDown()) {
-            climberMotors.set(.6);
-        } else {
-            climberMotors.set(0);
-        }
-    }
-
-    void climberRunPistons() {
+    void Climb() {
     // climber 2 on Y
         if (driver.Y()) {
             climberSol2.set(Value.kReverse);
@@ -344,6 +335,11 @@ public class Robot extends TimedRobot {
         } else {
             climberSol2.set(Value.kForward);
             climberSol1.set(Value.kForward);
+        }
+        if (driver.POVDown()) {
+            climberMotors.set(.6);
+        } else {
+            climberMotors.set(0);
         }
     }
 
