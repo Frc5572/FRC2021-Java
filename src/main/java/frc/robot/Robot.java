@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.TableEntryListener;
 
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Servo;
@@ -42,7 +43,23 @@ public class Robot extends TimedRobot {
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
   // create constants
-
+  final double x1 = -0.0000000025291;
+  final double x2 = 0.0000334240538;
+  final double x3 = -0.1545379987062;
+  final double b = 315.5170993015826;
+  final double heightOfShooter = 38;
+  final double heightOfTower = 98;
+  final double heightdiff = heightOfTower - heightOfShooter;
+  final double minAngle = 25;
+  final double maxAngle = 65;
+  final double maxPosition = 0;
+  final double minPosition = 1;
+  final double m1 = -(maxPosition - minPosition) / (maxAngle - minAngle);
+  final double b1 = -.625;
+  final double limitTurret = 20;
+  final double limitServo = .7;
+  final double hoodOffset = 30;
+  final double pi = 3.14159265358979323846;
 
   // public var for shooter PID
   double v1;
@@ -65,7 +82,7 @@ public class Robot extends TimedRobot {
 
 
   //                         not right ?????????????????????????????????????????????????????????????
-  Servo leftServo = new Servo(1);
+  Servo servos = new Servo(1);
 
   // initialize  talon motors
   WPI_TalonSRX m_frontLeft = new WPI_TalonSRX(4);
@@ -81,7 +98,7 @@ public class Robot extends TimedRobot {
   WPI_TalonSRX m_shooterRight = new WPI_TalonSRX(14);
 
   // initialize neo motors
-  CANSparkMax m_TurretMotor = new CANSparkMax(13, MotorType.kBrushless);
+  CANSparkMax m_turretMotor = new CANSparkMax(13, MotorType.kBrushless);
 
   // init speed controller groups
   SpeedControllerGroup shooterMotors = new SpeedControllerGroup(m_shooterLeft, m_shooterRight);
@@ -103,21 +120,14 @@ public class Robot extends TimedRobot {
   Controller driver = new Controller(0);
   Controller operator = new Controller(1);
 
+  VisionManager visionManager = new VisionManager();
 
-
-  // init usbCamera
-  // ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
   UsbCamera camera1;
   NetworkTableEntry cameraSelection;
-
-  /**
-   * This function is run when the robot is first started up and should be used for any
-   * initialization code.
-   */
+  NetworkTableEntry limelight;
 
   @Override
   public void robotInit() {
-
     // smart dashboard put PID values
     // SmartDashboard.putNumber("P Gain", 0);
     // SmartDashboard.putNumber("I Gain", 0);
@@ -136,8 +146,8 @@ public class Robot extends TimedRobot {
     m_shooterRight.set(ControlMode.PercentOutput, 0);
 
 
-    leftServo.set(0);
-    leftServo.setBounds(2.0, 1.8, 1.5, 1.2, 1.0);
+    servos.set(0);
+    servos.setBounds(2.0, 1.8, 1.5, 1.2, 1.0);
 
     m_IntakeMotors.set(ControlMode.PercentOutput, 0);
 
@@ -197,6 +207,8 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("RPM", speed);
     SmartDashboard.putNumber("RPM2", speed);
 
+    visionManager.Update();
+
   }
 
   @Override
@@ -229,9 +241,10 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    drive();
+    PositionHood();
     turretMove();
-    positionHood();
+    visionManager.Update();
+    drive();
     hopperRun();
     shooterRun();
     hopperRetractSol();
@@ -274,24 +287,13 @@ public class Robot extends TimedRobot {
 
   void turretMove() {
     if (operator.RB()) {
-      m_TurretMotor.set(.1);
+      m_turretMotor.set(.1);
     } else if(operator.LB()) {
-      m_TurretMotor.set(-.1);
+      m_turretMotor.set(-.1);
     } else {
-      m_TurretMotor.set(0);
+      autoAim();
+    //   m_turretMotor.set(0);
     }
-  }
-
-  void positionHood() {
-    // servo to .5 on driver.X
-    // if(operator.getRawButton(X_BUTTON)){
-    //   leftServo.set(servoPos);
-    //   servoPos = servoPos + 0.01;
-    // }
-    // else if (operator.getRawButton(Y_BUTTON)){
-    //   leftServo.set(servoPos);
-    //   servoPos = servoPos - 0.01;
-    // }
   }
 
   void hopperRun() {
@@ -333,15 +335,25 @@ public class Robot extends TimedRobot {
       intakeSol.set(Value.kForward);
       m_IntakeMotors.set(ControlMode.PercentOutput, 0);
     }
-  }
-
-  void climberRunMotors() {
-    if (driver.POVDown()) {
-      climberMotors.set(.6);
-    } else {
-      climberMotors.set(0);
+    // hopper on A
+    if(driver.A()){
+      hopperSol.set(Value.kReverse);
     }
-  }
+    else{
+      hopperSol.set(Value.kForward);
+    }
+}
+
+    void climberRunMotors() {
+        if (driver.POVDown()) {
+        climberMotors.set(.6);
+        } else {
+        climberMotors.set(0);
+        }
+        if(Math.abs(driver.L()) > .1){
+        leftDriveMotors.set(-driver.L() / 2);
+        }
+    }
 
   void climberRunPistons() {
     // climber 2 on Y
@@ -350,6 +362,8 @@ public class Robot extends TimedRobot {
     } else {
       climberSol2.set(Value.kReverse);
     }
+    if(Math.abs(driver.R()) > .1){
+      rightDriveMotors.set(-driver.R() / 2);
 
     // climber 1 on X
     if (driver.X()) {
@@ -357,6 +371,67 @@ public class Robot extends TimedRobot {
     } else {
       climberSol1.set(Value.kReverse);
     }
+    }
   }
 
+void autoAim(){
+//   NetworkTableInstance.getDefault().getTable("limelight");
+    double l = leftDriveMotors.get();
+    double r = rightDriveMotors.get();
+
+    double s = (visionManager.Update()/125) - (l/90) + (r/90);
+
+    m_turretMotor.set(s);
+}
+
+double calculateDistance(double area){
+  double r = x1*java.lang.Math.pow(area, 3) + x2*java.lang.Math.pow(area, 2) +x3*area + b;
+  return r;
+}
+
+void PositionHood(){
+    double sShort = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tshort").getDouble(1);
+    double sLong = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tlong").getDouble(1);
+    double os = SmartDashboard.getNumber("Hood Angle Adjust", hoodOffset);
+
+    double area = sLong * sShort;
+    // std::cout << "Total area: " << area << "\n";
+    System.out.println(calculateDistance(area) + "inches\n");
+    double a1 = java.lang.Math.atan2(heightdiff, calculateDistance(area)) * (180/pi);
+    // std::cout << "a1 " << a1 << "\n";
+    double a2 = 90 - a1 - os;
+    // std::cout << "a2 " << a2 << "\n";
+    double p = (1 / (maxAngle - minAngle))*(a2-maxAngle) + 1;
+    // std::cout << "servo position" << p << "\n";
+    if (p >= .7) {
+        p = .7;
+    }
+    servos.set(p);;
+  }
+
+double CalculateAngle(double distance){
+    double t = java.lang.Math.atan2(heightdiff , distance);
+    double d = t * (180 / pi);
+    double corrected_d = (90 - d - 25);
+    double r = m1 * corrected_d  + b1;
+    if (corrected_d > 64) {
+      r = limitServo;
+    } else if (corrected_d < 26) {
+      r = 0;
+    }
+    return r;
+  }
+
+void AutoAim() {
+//   NetworkTableInstance.getDefault().getTable("limelight").addEntryListener("ledMode", limelight, 0);
+//   NetworkTableInstance.getDefault().getTable("limelight").addEntryListener("ledMode", 3);
+
+
+  double l = leftDriveMotors.get();
+  double r = rightDriveMotors.get();
+
+  double s = (visionManager.Update()/125) - (l/90) + (r/90);
+
+  m_turretMotor.set(s);
+}
 }
