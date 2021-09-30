@@ -290,7 +290,7 @@ public class Robot extends TimedRobot {
         } else if(operator.LB()) {
             m_turretMotor.set(-.1);
         } else {
-        autoAim();
+            autoAim();
         }
     }
 
@@ -316,15 +316,15 @@ public class Robot extends TimedRobot {
     }
 
 
-  void intakeRun() {
-    // intake on B
-    if (operator.B()) {
-        intakeSol.set(Value.kReverse);
-        m_IntakeMotors.set(ControlMode.PercentOutput, .5);
-    } else {
-        intakeSol.set(Value.kForward);
-        m_IntakeMotors.set(ControlMode.PercentOutput, 0);
-    }
+    void intakeRun() {
+        // intake on B
+        if (operator.B()) {
+            intakeSol.set(Value.kReverse);
+            m_IntakeMotors.set(ControlMode.PercentOutput, .5);
+        } else {
+            intakeSol.set(Value.kForward);
+            m_IntakeMotors.set(ControlMode.PercentOutput, 0);
+        }
     }
 
     void Climb() {
@@ -362,7 +362,6 @@ public class Robot extends TimedRobot {
         double sShort = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tshort").getDouble(1);
         double sLong = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tlong").getDouble(1);
         double os = SmartDashboard.getNumber("Hood Angle Adjust", hoodOffset);
-
         double area = sLong * sShort;
         // std::cout << "Total area: " << area << "\n";
         System.out.println(calculateDistance(area) + "inches\n");
