@@ -330,9 +330,6 @@ public class Robot extends TimedRobot {
     void Climb() {
     // climber 2 on Y
         if (driver.Y()) {
-            climberSol2.set(Value.kReverse);
-            climberSol1.set(Value.kReverse);
-        } else {
             climberSol2.set(Value.kForward);
             climberSol1.set(Value.kForward);
         }
