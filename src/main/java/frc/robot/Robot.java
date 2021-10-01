@@ -20,10 +20,10 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.networktables.NetworkTable;
+// import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.TableEntryListener;
+// import edu.wpi.first.networktables.TableEntryListener;
 
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Servo;
@@ -120,7 +120,7 @@ public class Robot extends TimedRobot {
   Controller driver = new Controller(0);
   Controller operator = new Controller(1);
 
-  VisionManager visionManager = new VisionManager();
+  VisionManager VisionManager = new VisionManager();
 
   UsbCamera camera1;
   NetworkTableEntry cameraSelection;
@@ -207,7 +207,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("RPM", speed);
     SmartDashboard.putNumber("RPM2", speed);
 
-    visionManager.Update();
+    VisionManager.Update();
 
   }
 
@@ -242,13 +242,13 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     PositionHood();
-    turretMove();
-    visionManager.Update();
-    drive();
-    hopperRun();
-    shooterRun();
-    hopperRun();
-    intakeRun();
+    TurretMove();
+    VisionManager.Update();
+    Drive();
+    HopperRun();
+    ShooterRun();
+    HopperRun();
+    IntakeRun();
     Climb();
   }
 
@@ -271,7 +271,7 @@ public class Robot extends TimedRobot {
 
 
   /* ------------------- FUNCTIONS --------------- */
-    void drive() {
+    void Drive() {
         if (Math.abs(driver.L()) > .1) {
             leftDriveMotors.set(-driver.L() / 2);
         } else {
@@ -284,17 +284,17 @@ public class Robot extends TimedRobot {
         }
     }
 
-    void turretMove() {
+    void TurretMove() {
         if (operator.RB()) {
             m_turretMotor.set(.1);
         } else if(operator.LB()) {
             m_turretMotor.set(-.1);
         } else {
-            autoAim();
+            AutoAim();
         }
     }
 
-    void hopperRun() {
+    void HopperRun() {
         if (operator.POVDown()) {
             hopperMotors.set(.4);
         } else if(operator.POVUp()) {
@@ -306,7 +306,7 @@ public class Robot extends TimedRobot {
         }
     }
 
-    void shooterRun() {
+    void ShooterRun() {
         // shooter on driver right trigger
         if (operator.RT() > .4) {
             shooterMotors.set(.7);
@@ -316,7 +316,7 @@ public class Robot extends TimedRobot {
     }
 
 
-    void intakeRun() {
+    void IntakeRun() {
         // intake on B
         if (operator.B()) {
             intakeSol.set(Value.kReverse);
@@ -343,17 +343,17 @@ public class Robot extends TimedRobot {
         }
     }
 
-    void autoAim(){
+    void AutoAim(){
     //   NetworkTableInstance.getDefault().getTable("limelight");
         double l = leftDriveMotors.get();
         double r = rightDriveMotors.get();
 
-        double s = (visionManager.Update()/125) - (l/90) + (r/90);
+        double s = (VisionManager.Update()/125) - (l/90) + (r/90);
 
         m_turretMotor.set(s);
     }
 
-    double calculateDistance(double area){
+    double CalculateDistance(double area){
         double r = x1*java.lang.Math.pow(area, 3) + x2*java.lang.Math.pow(area, 2) +x3*area + b;
         return r;
     }
@@ -364,8 +364,8 @@ public class Robot extends TimedRobot {
         double os = SmartDashboard.getNumber("Hood Angle Adjust", hoodOffset);
         double area = sLong * sShort;
         // std::cout << "Total area: " << area << "\n";
-        System.out.println(calculateDistance(area) + "inches\n");
-        double a1 = java.lang.Math.atan2(heightdiff, calculateDistance(area)) * (180/pi);
+        System.out.println(CalculateDistance(area) + "inches\n");
+        double a1 = java.lang.Math.atan2(heightdiff, CalculateDistance(area)) * (180/pi);
         // std::cout << "a1 " << a1 << "\n";
         double a2 = 90 - a1 - os;
         // std::cout << "a2 " << a2 << "\n";
@@ -388,14 +388,5 @@ public class Robot extends TimedRobot {
             r = 0;
         }
         return r;
-    }
-
-    void AutoAim() {
-        //   NetworkTableInstance.getDefault().getTable("limelight").addEntryListener("ledMode", limelight, 0);
-        //   NetworkTableInstance.getDefault().getTable("limelight").addEntryListener("ledMode", 3);
-        double l = leftDriveMotors.get();
-        double r = rightDriveMotors.get();
-        double s = (visionManager.Update()/125) - (l/90) + (r/90);
-        m_turretMotor.set(s);
     }
 }
