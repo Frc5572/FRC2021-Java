@@ -249,7 +249,7 @@ public class Robot extends TimedRobot {
     shooterRun();
     hopperRun();
     intakeRun();
-    Climb();
+    climb();
   }
 
   /** This function is called once when the robot is disabled. */
@@ -327,7 +327,7 @@ public class Robot extends TimedRobot {
         }
     }
 
-    void Climb() {
+    void climb() {
     // climber 2 on Y
         if (driver.Y()) {
             climberSol2.set(Value.kForward);
