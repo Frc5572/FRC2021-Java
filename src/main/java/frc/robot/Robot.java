@@ -207,7 +207,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("RPM", speed);
     SmartDashboard.putNumber("RPM2", speed);
 
-    visionManager.Update();
+    VisionManager.Update();
 
   }
 
@@ -243,7 +243,7 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     PositionHood();
     turretMove();
-    visionManager.Update();
+    VisionManager.Update();
     drive();
     hopperRun();
     shooterRun();
@@ -290,7 +290,7 @@ public class Robot extends TimedRobot {
         } else if(operator.LB()) {
             m_turretMotor.set(-.1);
         } else {
-            autoAim();
+            AutoAim();
         }
     }
 
@@ -340,17 +340,17 @@ public class Robot extends TimedRobot {
         }
     }
 
-    void autoAim(){
+    void AutoAim(){
     //   NetworkTableInstance.getDefault().getTable("limelight");
         double l = leftDriveMotors.get();
         double r = rightDriveMotors.get();
 
-        double s = (visionManager.Update()/125) - (l/90) + (r/90);
+        double s = (VisionManager.Update()/125) - (l/90) + (r/90);
 
         m_turretMotor.set(s);
     }
 
-    double calculateDistance(double area){
+    double CalculateDistance(double area){
         double r = x1*java.lang.Math.pow(area, 3) + x2*java.lang.Math.pow(area, 2) +x3*area + b;
         return r;
     }
@@ -361,8 +361,8 @@ public class Robot extends TimedRobot {
         double os = SmartDashboard.getNumber("Hood Angle Adjust", hoodOffset);
         double area = sLong * sShort;
         // std::cout << "Total area: " << area << "\n";
-        System.out.println(calculateDistance(area) + "inches\n");
-        double a1 = java.lang.Math.atan2(heightdiff, calculateDistance(area)) * (180/pi);
+        System.out.println(CalculateDistance(area) + "inches\n");
+        double a1 = java.lang.Math.atan2(heightdiff, CalculateDistance(area)) * (180/pi);
         // std::cout << "a1 " << a1 << "\n";
         double a2 = 90 - a1 - os;
         // std::cout << "a2 " << a2 << "\n";
@@ -385,14 +385,5 @@ public class Robot extends TimedRobot {
             r = 0;
         }
         return r;
-    }
-
-    void AutoAim() {
-        //   NetworkTableInstance.getDefault().getTable("limelight").addEntryListener("ledMode", limelight, 0);
-        //   NetworkTableInstance.getDefault().getTable("limelight").addEntryListener("ledMode", 3);
-        double l = leftDriveMotors.get();
-        double r = rightDriveMotors.get();
-        double s = (visionManager.Update()/125) - (l/90) + (r/90);
-        m_turretMotor.set(s);
     }
 }
