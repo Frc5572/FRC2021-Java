@@ -30,6 +30,12 @@ import edu.wpi.first.wpilibj.Servo;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.I2C;
+import com.revrobotics.ColorSensorV3;
+import edu.wpi.first.wpilibj.util.Color;
+import com.revrobotics.ColorMatchResult;
+import com.revrobotics.ColorMatch;
+
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation. If you change the name of this class or
@@ -60,6 +66,15 @@ public class Robot extends TimedRobot {
   final double limitServo = .7;
   final double hoodOffset = 30;
   final double pi = 3.14159265358979323846;
+
+  private final ColorMatch m_colorMatcher = new ColorMatch();
+
+  private final Color kBlueTarget = ColorMatch.makeColor(0,0,1);
+  private final Color kGreenTarget = ColorMatch.makeColor(0,1,0);
+  private final Color kRedTarget = ColorMatch.makeColor(1,0,0);
+  private final Color kYellowTarget = ColorMatch.makeColor(0.361, 0.524, 0.113);
+
+
 
   // public var for shooter PID
   double v1;
@@ -111,6 +126,9 @@ public class Robot extends TimedRobot {
   CANSparkMax m_Climber2 = new CANSparkMax(15, MotorType.kBrushless);
   SpeedControllerGroup climberMotors = new SpeedControllerGroup(m_Climber1, m_Climber2);
 
+  private final I2C.Port i2cPort = I2C.Port.kOnboard;
+
+  ColorSensorV3 colorSensor = new ColorSensorV3(i2cPort);
 
   WPI_TalonSRX m_hopperLeft = new WPI_TalonSRX(9);
   WPI_TalonSRX m_hopperRight = new WPI_TalonSRX(10);
@@ -128,6 +146,12 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
+
+    m_colorMatcher.addColorMatch(kBlueTarget);
+    m_colorMatcher.addColorMatch(kGreenTarget);
+    m_colorMatcher.addColorMatch(kRedTarget);
+    // m_colorMatcher.addColorMatch(kYellowTarget);
+
     // smart dashboard put PID values
     // SmartDashboard.putNumber("P Gain", 0);
     // SmartDashboard.putNumber("I Gain", 0);
@@ -196,6 +220,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
+
     // assign variable to shooter motor speed
     double s1 = m_shooterLeft.getSelectedSensorVelocity();
     double s2 = m_shooterRight.getSelectedSensorVelocity();
@@ -241,13 +266,14 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
+
+    getColor();
     PositionHood();
-    TurretMove();
+    // TurretMove();
     VisionManager.Update();
     Drive();
     HopperRun();
     ShooterRun();
-    HopperRun();
     IntakeRun();
     Climb();
   }
@@ -385,5 +411,29 @@ public class Robot extends TimedRobot {
             r = 0;
         }
         return r;
+    }
+
+    void getColor(){
+        Color detectedColor = colorSensor.getColor();
+
+        // System.out.println("asdfasdf");
+
+        String colorString;
+        ColorMatchResult match = m_colorMatcher.matchClosestColor(detectedColor);
+
+        if (match.color == kBlueTarget) {
+            colorString = "Blue";
+        } else if (match.color == kRedTarget) {
+            colorString = "Red";
+        } else if (match.color == kGreenTarget) {
+            colorString = "Green";
+        } else if (match.color == kYellowTarget) {
+            colorString = "Yellow";
+        } else {
+            colorString = "Unknown";
+        }
+        // System.out.println(colorString);
+        System.out.println("RED: " + detectedColor.red + "GREEN: " +  detectedColor.green + "BLUE: " + detectedColor.blue);
+        SmartDashboard.putString("Detected Color", colorString);
     }
 }
