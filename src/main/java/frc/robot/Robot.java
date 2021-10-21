@@ -30,6 +30,8 @@ import edu.wpi.first.wpilibj.Servo;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import java.lang.Math;
+
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation. If you change the name of this class or
@@ -92,7 +94,7 @@ public class Robot extends TimedRobot {
   WPI_TalonSRX m_frontRight = new WPI_TalonSRX(3);
   // WPI_TalonSRX m_middleRight = new WPI_TalonSRX(3);
   WPI_TalonSRX m_backRight = new WPI_TalonSRX(2);
-  SpeedControllerGroup rightDriveMotors = new SpeedControllerGroup(m_frontRight, m_backRight);
+  SpeedControllerGroup RightDriveMotors = new SpeedControllerGroup(m_frontRight, m_backRight);
 
   WPI_TalonSRX m_shooterLeft = new WPI_TalonSRX(12);
   WPI_TalonSRX m_shooterRight = new WPI_TalonSRX(14);
@@ -125,6 +127,19 @@ public class Robot extends TimedRobot {
   UsbCamera camera1;
   NetworkTableEntry cameraSelection;
   NetworkTableEntry limelight;
+
+  String autoNum = SmartDashboard.getString("auto", "1");
+
+    boolean firstPart = false;
+    boolean secondPart = false;
+    boolean thirdPart = false;
+    boolean fourthPart = false;
+    boolean fifthPart = false;
+
+    double eticks = 2048 * 9.2;
+    double circum = 18.84;
+    double wantToMove = 14 * 13; //feet to inches
+    double ticks = wantToMove * (eticks / circum);
 
   @Override
   public void robotInit() {
@@ -171,7 +186,7 @@ public class Robot extends TimedRobot {
 
     // invert motors
     m_shooterLeft.setInverted(true);
-    rightDriveMotors.setInverted(true);
+    RightDriveMotors.setInverted(true);
     m_hopperLeft.setInverted(true);
 
     // start compressor
@@ -192,6 +207,7 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+
   }
 
   @Override
@@ -214,11 +230,7 @@ public class Robot extends TimedRobot {
   @Override
    public void autonomousInit() {
 
-    autoNum = SmartDashboard.getString("auto", "1");
-    if (std::find(l.begin(), l.end(), autoNum) == l.end())
-    {
-        autoNum = "1";
-    }
+    String autoNum = SmartDashboard.getString("auto", "1");
     timer.reset();
     timer.start();
     //ahrs.Reset();
@@ -226,11 +238,7 @@ public class Robot extends TimedRobot {
     m_backLeft.setSelectedSensorPosition(0);
     intakeSol.set(Value.kReverse);
     hopperSol.set(Value.kForward);
-    boolean firstPart = false;
-    boolean secondPart = false;
-    boolean thirdPart = false;
-    boolean fourthPart = false;
-    boolean fifthPart = false;
+
   }
 
   @Override
@@ -239,91 +247,91 @@ public class Robot extends TimedRobot {
     PositionHood();
     m_shooterRight.set(.7);
     m_shooterLeft.set(.7);
-    if (autoN){
+    if (autoNum == "1"){
      System.out.println("auto 1");
         if (!firstPart) {
             intakeSol.set(Value.kReverse);
-            if(m_timer.Get() < .3){
+            if(timer.get() < .3){
                 m_turretMotor.set(.1);
             }
-            else if(m_timer.Get() > .3 && m_timer.Get() < .7){
+            else if(timer.get() > .3 && timer.get() < .7){
                 m_turretMotor.set(.1);
-                // s1.SetPosition(.1);
+                // s1.setPosition(.1);
             }
-            else if (m_timer.Get() > .7 && m_timer.Get() < 3) {
+            else if (timer.get() > .7 && timer.get() < 3) {
             }
-            else if (m_timer.Get() > 3 && m_timer.Get() < 3.5 ){
+            else if (timer.get() > 3 && timer.get() < 3.5 ){
                 // turret.Off();
-                hopper.HopperMotors.set(.4);
+                hopperMotors.set(.4);
             }
-            else if (m_timer.Get() > 3.5 && m_timer.Get() < 4 ){
+            else if (timer.get() > 3.5 && timer.get() < 4 ){
                 // turret.Off();
-                // hopper.HopperMotors->Set(.5);
+                // hopperMotors->Set(.5);
             }
-            else if (m_timer.Get() > 4 && m_timer.Get() < 5.5 ){
+            else if (timer.get() > 4 && timer.get() < 5.5 ){
                 // turret.Off();
                 // hopper.HopperMotors->Set(.6);
             }
-            else if (m_timer.Get() > 5.5 && m_timer.Get() < 6) {
-                hopper.HopperMotors.set(0.0);
-                // s1.SetPosition(0);
+            else if (timer.get() > 5.5 && timer.get() < 6) {
+                hopperMotors.set(0.0);
+                // s1.setPosition(0);
             } else {
-                m_leftMiddleMotor.SetSelectedSensorPosition(0);
+                m_backLeft.setSelectedSensorPosition(0);
                 firstPart = true;
             }
         } else if (!secondPart) {
-            m_timer.Stop();
-            if (abs(m_leftMiddleMotor.GetSelectedSensorPosition()) < ticks)
+            timer.stop();
+            if (Math.abs(m_backLeft.getSelectedSensorPosition()) < ticks)
             {
-                driveTrain.LeftMotors.set(.3);
-                driveTrain.RightMotors.set(.3);
-                m_intake.Set(.3);
-                hopper.HopperMotors.set(.4);
-                hopperSol.Set(Value.kReverse);
+                m_frontLeft.set(.3);
+                m_frontRight.set(.3);
+                m_IntakeMotors.set(.3);
+                hopperMotors.set(.4);
+                hopperSol.set(Value.kReverse);
             } else {
-                driveTrain.LeftMotors.set(0);
-                driveTrain.RightMotors.set(0);
+                leftDriveMotors.set(0);
+                RightDriveMotors.set(0);
                 secondPart = true;
             }
         } else if (!thirdPart) {
-            m_timer.Start();
-            if (m_timer.Get() > 6 && m_timer.Get() < 6.25) {
-                m_turretMotor.Set(.2);
+            timer.start();
+            if (timer.get() > 6 && timer.get() < 6.25) {
+                m_turretMotor.set(.2);
             }
-            if (m_timer.Get() > 6 && m_timer.Get() < 6.5) {
-                driveTrain.LeftMotors.set(0);
-                driveTrain.RightMotors.set(0);
+            if (timer.get() > 6 && timer.get() < 6.5) {
+                leftDriveMotors.set(0);
+                RightDriveMotors.set(0);
             } else {
-                m_timer.Stop();
+                timer.stop();
                 thirdPart = true;
             }
         } else if (!fourthPart) {
-            if (abs(m_leftMiddleMotor.GetSelectedSensorPosition()) > (12 * 11 * (eticks / circum))) {
-                driveTrain.LeftMotors.set(-.3);
-                driveTrain.RightMotors.set(-.3);
-                // s1.SetPosition(.1);
+            if (Math.abs(m_backLeft.getSelectedSensorPosition()) > (12 * 11 * (eticks / circum))) {
+                leftDriveMotors.set(-.3);
+                RightDriveMotors.set(-.3);
+                // s1.setPosition(.1);
             } else {
-                driveTrain.LeftMotors.set(0);
-                driveTrain.RightMotors.set(0);
-                m_timer.Start();
+                leftDriveMotors.set(0);
+                RightDriveMotors.set(0);
+                timer.start();
                 fourthPart = true;
             }
         } else if (!fifthPart) {
-            if (m_timer.Get() > 6.5 && m_timer.Get() < 8) {
-                driveTrain.LeftMotors.set(0);
-                driveTrain.RightMotors.set(0);
+            if (timer.get() > 6.5 && timer.get() < 8) {
+                leftDriveMotors.set(0);
+                RightDriveMotors.set(0);
                 intakeSol.set(Value.kForward);
                 hopperSol.set(Value.kForward);
-            } else if (m_timer.Get() > 8 && m_timer.Get() < 10) {
+            } else if (timer.get() > 8 && timer.get() < 10) {
                 intakeSol.set(Value.kReverse);
-                hopper.HopperMotors.set(.4);
-            } else if (m_timer.Get() > 10 && m_timer.Get() < 12) {
+                hopperMotors.set(.4);
+            } else if (timer.get() > 10 && timer.get() < 12) {
                 intakeSol.set(Value.kForward);
-            } else if (m_timer.Get() > 12 && m_timer.Get() < 12.5) {
-                m_shooter1.set(0);
-                m_shooter2.set(0);
-                hopper.HopperMotors.set(0.0);
-                m_intake.set(0);
+            } else if (timer.get() > 12 && timer.get() < 12.5) {
+                m_shooterLeft.set(0);
+                m_shooterRight.set(0);
+                hopperMotors.set(0.0);
+                m_IntakeMotors.set(0);
             } else {
                 fifthPart = true;
             }
@@ -331,56 +339,56 @@ public class Robot extends TimedRobot {
     }
     else if (autoNum == "2")
     {
-        system.out.println("Auto 2");
+        System.out.println("Auto 2");
         if (!firstPart) {
-            if(m_timer.Get() < .3){
-                // m_turret.Set(.1);
+            if(timer.get() < .3){
+                // m_turret.set(.1);
             }
-            else if(m_timer.Get() > .3 && m_timer.Get() < .7){
-                // m_turret.Set(.1);
-                // s1.SetPosition(.1);
+            else if(timer.get() > .3 && timer.get() < .7){
+                // m_turret.set(.1);
+                // s1.setPosition(.1);
             }
-            else if (m_timer.Get() > .7 && m_timer.Get() < 5) {
+            else if (timer.get() > .7 && timer.get() < 5) {
 
             }
-            else if (m_timer.Get() > 5 && m_timer.Get() < 9.5 ){
+            else if (timer.get() > 5 && timer.get() < 9.5 ){
                 // turret.Off();
-                hopper.HopperMotors.set(.5);
+                hopperMotors.set(.5);
             }
-            else if (m_timer.Get() > 9.5 && m_timer.Get() < 10) {
-                // hopper.HopperMotors->Set(0.0);
-                // s1.SetPosition(0);
+            else if (timer.get() > 9.5 && timer.get() < 10) {
+                // hopperMotors->Set(0.0);
+                // s1.setPosition(0);
             }
-            else if (m_timer.Get() > 10 && m_timer.Get() < 10.25) {
-                hopperSol.Set(Value.kForward);
+            else if (timer.get() > 10 && timer.get() < 10.25) {
+                hopperSol.set(Value.kForward);
             }
-            else if (m_timer.Get() > 10.25 && m_timer.Get() < 10.5) {
-                hopperSol.Set(Value.kForward);
+            else if (timer.get() > 10.25 && timer.get() < 10.5) {
+                hopperSol.set(Value.kForward);
             }
-            else if (m_timer.Get() > 10.5 && m_timer.Get() < 11) {
-                hopperSol.Set(Value.kReverse);
+            else if (timer.get() > 10.5 && timer.get() < 11) {
+                hopperSol.set(Value.kReverse);
             }
-            else if (m_timer.Get() > 11 && m_timer.Get() < 11.25) {
-                hopperSol.Set(Value.kForward);
+            else if (timer.get() > 11 && timer.get() < 11.25) {
+                hopperSol.set(Value.kForward);
             }
-            else if (m_timer.Get() > 11.25 && m_timer.Get() < 12) {
-                hopperSol.Set(Value.kReverse);
+            else if (timer.get() > 11.25 && timer.get() < 12) {
+                hopperSol.set(Value.kReverse);
             }
-            else if (m_timer.Get() > 12 && m_timer.Get() < 12.5) {
-                hopperSol.Set(Value.kForward);
+            else if (timer.get() > 12 && timer.get() < 12.5) {
+                hopperSol.set(Value.kForward);
             } else {
-                m_leftMiddleMotor.SetSelectedSensorPosition(0);
+                m_backLeft.setSelectedSensorPosition(0);
                 firstPart = true;
             }
         } else if (!secondPart) {
-            m_timer.Stop();
-            if (abs(m_leftMiddleMotor.GetSelectedSensorPosition()) < (ticks / 13) * 2)
+            timer.stop();
+            if (Math.abs(m_backLeft.getSelectedSensorPosition()) < (ticks / 13) * 2)
             {
-                driveTrain.LeftMotors.set(-.3);
-                driveTrain.RightMotors.set(-.3);
+                leftDriveMotors.set(-.3);
+                RightDriveMotors.set(-.3);
             } else {
-                driveTrain.LeftMotors.set(0);
-                driveTrain.RightMotors.set(0);
+                leftDriveMotors.set(0);
+                RightDriveMotors.set(0);
                 secondPart = true;
             }
         }
@@ -430,9 +438,9 @@ public class Robot extends TimedRobot {
             leftDriveMotors.set(0);
         }
         if (Math.abs(driver.R()) > .1) {
-            rightDriveMotors.set(-driver.R() / 2);
+            RightDriveMotors.set(-driver.R() / 2);
         } else {
-            rightDriveMotors.set(0);
+            RightDriveMotors.set(0);
         }
     }
 
@@ -498,7 +506,7 @@ public class Robot extends TimedRobot {
     void autoAim(){
     //   NetworkTableInstance.getDefault().getTable("limelight");
         double l = leftDriveMotors.get();
-        double r = rightDriveMotors.get();
+        double r = RightDriveMotors.get();
 
         double s = (visionManager.Update()/125) - (l/90) + (r/90);
 
@@ -547,7 +555,7 @@ public class Robot extends TimedRobot {
         //   NetworkTableInstance.getDefault().getTable("limelight").addEntryListener("ledMode", limelight, 0);
         //   NetworkTableInstance.getDefault().getTable("limelight").addEntryListener("ledMode", 3);
         double l = leftDriveMotors.get();
-        double r = rightDriveMotors.get();
+        double r = RightDriveMotors.get();
         double s = (visionManager.Update()/125) - (l/90) + (r/90);
         m_turretMotor.set(s);
     }
