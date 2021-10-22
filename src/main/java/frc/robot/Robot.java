@@ -74,8 +74,6 @@ public class Robot extends TimedRobot {
   private final Color kRedTarget = ColorMatch.makeColor(1,0,0);
   private final Color kYellowTarget = ColorMatch.makeColor(0.361, 0.524, 0.113);
 
-
-
   // public var for shooter PID
   double v1;
   double v2;
