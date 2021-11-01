@@ -90,7 +90,7 @@ public class Robot extends TimedRobot {
   WPI_TalonSRX m_frontLeft = new WPI_TalonSRX(4);
   // WPI_TalonSRX m_middleLeft = new WPI_TalonSRX(6);
   WPI_TalonSRX m_backLeft = new WPI_TalonSRX(8);
-  SpeedControllerGroup leftDriveMotors = new SpeedControllerGroup(m_frontLeft, m_backLeft);
+  SpeedControllerGroup leftDriveMotors = new SpeedControllerGroup(m_backLeft);
   WPI_TalonSRX m_frontRight = new WPI_TalonSRX(3);
   // WPI_TalonSRX m_middleRight = new WPI_TalonSRX(3);
   WPI_TalonSRX m_backRight = new WPI_TalonSRX(2);
@@ -128,7 +128,7 @@ public class Robot extends TimedRobot {
   NetworkTableEntry cameraSelection;
   NetworkTableEntry limelight;
 
-  String autoNum = SmartDashboard.getString("auto", "1");
+  String autoNum = "1";
 
     boolean firstPart = false;
     boolean secondPart = false;
@@ -197,8 +197,8 @@ public class Robot extends TimedRobot {
     // set solenoids to start position
     intakeSol.set(Value.kForward);
     hopperSol.set(Value.kForward);
-    climberSol1.set(Value.kReverse);
-    climberSol2.set(Value.kReverse);
+    climberSol1.set(Value.kForward);
+    climberSol2.set(Value.kForward);
 
     m_Climber1.setInverted(true);
 
@@ -230,7 +230,6 @@ public class Robot extends TimedRobot {
   @Override
    public void autonomousInit() {
 
-    String autoNum = SmartDashboard.getString("auto", "1");
     timer.reset();
     timer.start();
     //ahrs.Reset();
@@ -262,7 +261,7 @@ public class Robot extends TimedRobot {
             }
             else if (timer.get() > 3 && timer.get() < 3.5 ){
                 // turret.Off();
-                hopperMotors.set(.4);
+                hopperMotors.set(-.4);
             }
             else if (timer.get() > 3.5 && timer.get() < 4 ){
                 // turret.Off();
@@ -283,10 +282,10 @@ public class Robot extends TimedRobot {
             timer.stop();
             if (Math.abs(m_backLeft.getSelectedSensorPosition()) < ticks)
             {
-                m_frontLeft.set(.3);
-                m_frontRight.set(.3);
+                leftDriveMotors.set(3);
+                RightDriveMotors.set(3);
                 m_IntakeMotors.set(.3);
-                hopperMotors.set(.4);
+                hopperMotors.set(-.4);
                 hopperSol.set(Value.kReverse);
             } else {
                 leftDriveMotors.set(0);
@@ -307,8 +306,8 @@ public class Robot extends TimedRobot {
             }
         } else if (!fourthPart) {
             if (Math.abs(m_backLeft.getSelectedSensorPosition()) > (12 * 11 * (eticks / circum))) {
-                leftDriveMotors.set(-.3);
-                RightDriveMotors.set(-.3);
+                leftDriveMotors.set(.3);
+                RightDriveMotors.set(-3);
                 // s1.setPosition(.1);
             } else {
                 leftDriveMotors.set(0);
@@ -324,7 +323,7 @@ public class Robot extends TimedRobot {
                 hopperSol.set(Value.kForward);
             } else if (timer.get() > 8 && timer.get() < 10) {
                 intakeSol.set(Value.kReverse);
-                hopperMotors.set(.4);
+                hopperMotors.set(-.4);
             } else if (timer.get() > 10 && timer.get() < 12) {
                 intakeSol.set(Value.kForward);
             } else if (timer.get() > 12 && timer.get() < 12.5) {
