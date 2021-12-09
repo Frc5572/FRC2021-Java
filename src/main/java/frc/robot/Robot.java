@@ -72,13 +72,24 @@ public class Robot extends TimedRobot {
   private final Color kBlueTarget = ColorMatch.makeColor(0,0,1);
   private final Color kGreenTarget = ColorMatch.makeColor(0,1,0);
   private final Color kRedTarget = ColorMatch.makeColor(1,0,0);
-  private final Color kYellowTarget = ColorMatch.makeColor(0.361, 0.524, 0.113);
+  private final Color kYellowTarget = ColorMatch.makeColor(.5, 1, 0);
 
   // public var for shooter PID
   double v1;
   double v2;
   int PCM1 = 0;
   int PCM2 = 1;
+
+
+
+
+
+
+
+
+
+
+
   double servoPos = 0;
 
 
@@ -145,10 +156,8 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
 
-    m_colorMatcher.addColorMatch(kBlueTarget);
-    m_colorMatcher.addColorMatch(kGreenTarget);
-    m_colorMatcher.addColorMatch(kRedTarget);
-    // m_colorMatcher.addColorMatch(kYellowTarget);
+
+
 
     // smart dashboard put PID values
     // SmartDashboard.putNumber("P Gain", 0);
@@ -218,6 +227,11 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
+
+    m_colorMatcher.addColorMatch(kYellowTarget);
+    m_colorMatcher.addColorMatch(kBlueTarget);
+    m_colorMatcher.addColorMatch(kGreenTarget);
+    m_colorMatcher.addColorMatch(kRedTarget);
 
     // assign variable to shooter motor speed
     double s1 = m_shooterLeft.getSelectedSensorVelocity();
@@ -414,7 +428,8 @@ public class Robot extends TimedRobot {
     void getColor(){
         Color detectedColor = colorSensor.getColor();
 
-        // System.out.println("asdfasdf");
+        // System.out.println("Detecting: ");
+        // System.out.println(detectedColor);
 
         String colorString;
         ColorMatchResult match = m_colorMatcher.matchClosestColor(detectedColor);
