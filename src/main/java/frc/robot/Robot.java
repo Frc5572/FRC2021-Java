@@ -428,9 +428,6 @@ public class Robot extends TimedRobot {
     void getColor(){
         Color detectedColor = colorSensor.getColor();
 
-        // System.out.println("Detecting: ");
-        // System.out.println(detectedColor);
-
         String colorString;
         ColorMatchResult match = m_colorMatcher.matchClosestColor(detectedColor);
 
@@ -445,8 +442,7 @@ public class Robot extends TimedRobot {
         } else {
             colorString = "Unknown";
         }
-        // System.out.println(colorString);
-        System.out.println("RED: " + detectedColor.red + "GREEN: " +  detectedColor.green + "BLUE: " + detectedColor.blue);
+        // System.out.println("RED: " + detectedColor.red + "GREEN: " +  detectedColor.green + "BLUE: " + detectedColor.blue);
         SmartDashboard.putString("Detected Color", colorString);
     }
 }
